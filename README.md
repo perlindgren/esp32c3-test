@@ -59,6 +59,13 @@ cargo espflash --release --example blinky --format direct-boot --monitor
 
 ---
 
+## Debugging in vscode
+
+The `.vscode` folder provides `launch.json` and `tasks.json` configuration files for using [probe-rs-debugger](https://probe.rs/docs/tools/vscode/) in a seamless fashion. 
+
+
+
+---
 ## Notes
 
 For some reason it needs the `ld` folder together with the `build.rs` locally in this crate (though they should be provided through the dependency to `esp32c3-hal`).
