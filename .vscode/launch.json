@@ -8,6 +8,7 @@
             "type": "probe-rs-debug",
             "request": "launch",
             "name": "probe-rs Debug",
+            "probe": "303a:1001", //!MODIFY (or remove)
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "cargo build --example",
             "connectUnderReset": false,

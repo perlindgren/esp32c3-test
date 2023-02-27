@@ -5,17 +5,16 @@
 #![no_std]
 #![no_main]
 
+use core::fmt::Write;
+
 use esp32c3_hal::{
     clock::ClockControl, gpio::IO, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay,
-    Rtc,
+    Rtc, Uart,
 };
-
 use esp_backtrace as _;
-use rtt_target::{rprintln, rtt_init_print};
 
 #[entry]
 fn main() -> ! {
-    rtt_init_print!();
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
@@ -28,12 +27,13 @@ fn main() -> ! {
     let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
     let mut wdt1 = timer_group1.wdt;
 
+    let mut uart0 = Uart::new(peripherals.UART0);
+
     rtc.swd.disable();
     rtc.rwdt.disable();
     wdt0.disable();
     wdt1.disable();
 
-    rprintln!("here");
     // Set GPIO7 as an output, and set its state high initially.
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut led = io.pins.gpio7.into_push_pull_output();
@@ -45,7 +45,7 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        rprintln!("Hello world");
+        writeln!(uart0, "Hello world!").unwrap();
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
