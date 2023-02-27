@@ -9,12 +9,46 @@ rustup target add riscv32imc-unknown-none-elf
 cargo install cargo-espflash espflash
 ```
 
+## Configuration
+
+For now we want to generate binaries executable from flash. This is achieved through the `direct-boot`  build feature enabled by default (in the `Cargo.toml`). 
+
+The `.cargo/config.toml` sets the runner:
+
+``` toml
+runner = "espflash  --format direct-boot --monitor"
+```
+
+This allows you to use `cargo run` to flash and run your program.
+
+---
+
+## `src/main.rs`
+
+For now a simple hello world with `esp32_println` tracing.
+
+``` shell
+cargo run
+```
+
+or
+
+``` shell
+cargo espflash --format direct-boot --monitor
+```
+
 ## Examples
 
 For now just a simple `blinky` with `esp32_println` tracing.
 
+``` shell
+cargo run --example blinky
+```
+
+or
+
 ```shell
-cargo espflash --release --example blinky --format direct-boot --features direct-boot
+cargo espflash --release --example blinky --format direct-boot --monitor
 ```
 
 ## Notes

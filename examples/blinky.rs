@@ -1,6 +1,6 @@
-// ! Blinks an LED
+//! Blinks an LED
 //!
-//! This assumes that a LED is connected to the pin assigned to `led`. (GPIO5)
+//! This assumes that a LED is connected to the pin assigned to `led`. (GPIO7 for the ESP32c3-RUST DK)
 
 #![no_std]
 #![no_main]
@@ -12,6 +12,7 @@ use esp32c3_hal::{
     Rtc, Uart,
 };
 use esp_backtrace as _;
+use esp_println::println;
 
 #[entry]
 fn main() -> ! {
@@ -46,7 +47,7 @@ fn main() -> ! {
 
     loop {
         writeln!(uart0, "Hello world!").unwrap();
-        esp_println::println!("Hello world");
+        println!("Hello world");
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);

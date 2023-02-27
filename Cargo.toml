@@ -40,7 +40,7 @@ esp-println = { version = "0.4.0", features = ["esp32c3"] }
 # static_cell = "1.0.0"
 
 [features]
-default = ["rt", "vectored"]
+default = ["rt", "vectored", "direct-boot"]
 mcu-boot = []
 direct-boot = []
 # eh1 = [

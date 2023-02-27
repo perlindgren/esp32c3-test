@@ -6,6 +6,7 @@ use esp32c3_hal::{
     clock::ClockControl, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay, Rtc,
 };
 use esp_backtrace as _;
+use esp_println::println;
 
 #[entry]
 fn main() -> ! {
@@ -29,7 +30,7 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        esp_println::println!("Hello world");
+        println!("Hello world");
 
         delay.delay_ms(500u32);
     }
