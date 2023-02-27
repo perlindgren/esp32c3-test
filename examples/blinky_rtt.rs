@@ -10,8 +10,18 @@ use esp32c3_hal::{
     Rtc,
 };
 
-use esp_backtrace as _;
+use core::panic::PanicInfo;
 use rtt_target::{rprintln, rtt_init_print};
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {
+        unsafe {
+            core::arch::asm!("ebreak");
+        }
+        rprintln!("In a panic loop, stepped past the breakpoint");
+    }
+}
 
 #[entry]
 fn main() -> ! {
