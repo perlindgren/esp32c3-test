@@ -27,21 +27,22 @@ critical-section = "1.1.1"
 #     "integrated-timers",
 # ] }
 # embedded-graphics = "0.7.1"
-esp-backtrace = { version = "0.5.0", features = [
-    "esp32c3",
-    "panic-handler",
-    "exception-handler",
-    "print-rtt",
-] }
 
-# rtt-target = { version = "0.3.1", features = ["riscv"] }
+# esp-backtrace = { version = "0.5.0", features = [
+#     "esp32c3",
+#     "panic-handler",
+#     "exception-handler",
+#     "print-rtt",
+# ] }
 
-[dependencies.esp-println]
-version = "0.3.1"
-#version = "0.4.0"
-default-features = false
-#features = ["esp32c3", "rtt"]
-features = ["esp32c3"]
+rtt-target = { version = "0.3.1", features = ["riscv"] }
+
+# [dependencies.esp-println]
+# version = "0.3.1"
+# #version = "0.4.0"
+# default-features = false
+# #features = ["esp32c3", "rtt"]
+# features = ["esp32c3"]
 
 
 # sha2 = { version = "0.10.6", default-features = false }
