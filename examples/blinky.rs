@@ -35,7 +35,7 @@ fn main() -> ! {
     wdt0.disable();
     wdt1.disable();
 
-    // Set GPIO5 as an output, and set its state high initially.
+    // Set GPIO7 as an output, and set its state high initially.
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut led = io.pins.gpio7.into_push_pull_output();
 

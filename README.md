@@ -2,12 +2,16 @@
 
 Playground for experimentation with the esp32c3-rust board.
 
+---
+
 ## Setup
 
 ```shell
 rustup target add riscv32imc-unknown-none-elf
 cargo install cargo-espflash espflash
 ```
+
+---
 
 ## Configuration
 
@@ -37,6 +41,8 @@ or
 cargo espflash --format direct-boot --monitor
 ```
 
+---
+
 ## Examples
 
 For now just a simple `blinky` with `esp32_println` tracing.
@@ -51,8 +57,12 @@ or
 cargo espflash --release --example blinky --format direct-boot --monitor
 ```
 
+---
+
 ## Notes
 
 For some reason it needs the `ld` folder together with the `build.rs` locally in this crate (though they should be provided through the dependency to `esp32c3-hal`).
+
+In the blinky example a trace over USART0 is also generated unclear if/how this serial communication is handled by the programmer.
 
 
