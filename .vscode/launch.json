@@ -38,10 +38,11 @@
             "type": "probe-rs-debug",
             "request": "launch",
             "name": "probe-rs Release",
+            "probe": "303a:1001", //!MODIFY (or remove)
             "cwd": "${workspaceFolder}",
             "preLaunchTask": "cargo build --example --release",
             "connectUnderReset": false,
-            "chip": "nRF52840_xxAA",
+            "chip": "esp32c3",
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,

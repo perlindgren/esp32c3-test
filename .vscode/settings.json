@@ -1,0 +1,13 @@
+{
+    "cSpell.ignoreWords": [
+        "CNTL",
+        "GPIO",
+        "blinky",
+        "espflash",
+        "println",
+        "riscv",
+        "rprintln",
+        "rustup",
+        "rwdt"
+    ]
+}
