@@ -7,7 +7,7 @@
 
 use esp32c3_hal::{
     clock::ClockControl, gpio::IO, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay,
-    Rtc,interrupt
+    Rtc
 };
 
 use core::panic::PanicInfo;

@@ -54,8 +54,3 @@ fn main() -> ! {
         delay.delay_ms(500u32);
     }
 }
-
-#[export_name = "DefaultHanler"]
-fn interruptHandler(){
-    rprintln!("Hello world!");
-}
