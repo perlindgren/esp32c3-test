@@ -4,17 +4,28 @@
 
 #![no_std]
 #![no_main]
+use core::cell::RefCell;
+use critical_section::Mutex;
 
+//use esp32c3::TIMG1;
 use esp32c3_hal::{
-    clock::ClockControl, gpio::IO, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay,
+    clock::ClockControl,
+    gpio::IO,
+    peripherals::{self, Peripherals, TIMG0},
+    prelude::*, 
+    timer::{TimerGroup, Wdt},
+    Delay,
     Rtc,interrupt
 };
+//use esp_hal_common::{GpioPin, PushPull, Output};
 
 use core::panic::PanicInfo;
 
 // use esp_backtrace as _;
 use rtt_target::{rprintln, rtt_init_print};
 
+
+static TIMER0: Mutex<RefCell<Option<Wdt<TIMG0>>>> = Mutex::new(RefCell::new(None));
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
@@ -33,8 +44,15 @@ fn main() -> ! {
 
     rtc.swd.disable();
     rtc.rwdt.disable();
-    wdt0.disable();
+    rtc.rwdt.listen();
+    //rtc.rwdt.start(1u32.secs());
+    
+    //wdt0.feed();
+    //_embedded_hal_watchdog_WatchdogEnable::start(&mut self, period)
+    interrupt::enable(peripherals::Interrupt::RTC_CORE, interrupt::Priority::Priority1).unwrap();
     wdt1.disable();
+
+    
 
     rprintln!("here");
     // Set GPIO7 as an output, and set its state high initially.
@@ -48,8 +66,7 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        rprintln!("Hello world");
-        led.toggle().unwrap();
+        rprintln!("xdd");
         delay.delay_ms(500u32);
     }
 }
@@ -62,4 +79,18 @@ fn panic(_info: &PanicInfo) -> ! {
         }
         rprintln!("In a panic loop, stepped past the breakpoint");
     }
+}
+
+#[interrupt]
+fn TG0_WDT_LEVEL(){
+
+    critical_section::with(|cs|{
+        let mut wdt0 = TIMER0.borrow_ref_mut(cs);
+        let wdt0 = wdt0.as_mut().unwrap();
+        wdt0.feed();
+        rprintln!("Hello world");
+        //led.toggle().unwrap();
+        wdt0.start(1u32.secs());
+    });
+
 }

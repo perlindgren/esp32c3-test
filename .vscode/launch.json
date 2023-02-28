@@ -71,7 +71,8 @@
                     //         "dataFormat": "String", // Format RTT data as String data
                     //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
                     //     },
-                ],
+               // ],
+                
                 // "svdFile": "./.vscode/X.svd",
             }
         ]

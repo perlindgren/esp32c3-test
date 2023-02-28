@@ -9,10 +9,10 @@ use core::fmt::Write;
 
 use esp32c3_hal::{
     clock::ClockControl, gpio::IO, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay,
-    Rtc, Uart,
+    Rtc, Uart, interrupt
 };
-use esp_backtrace as _;
-
+//use esp_backtrace as _;
+use rtt_target::{rprintln, rtt_init_print};
 #[entry]
 fn main() -> ! {
     let peripherals = Peripherals::take();
@@ -28,6 +28,8 @@ fn main() -> ! {
     let mut wdt1 = timer_group1.wdt;
 
     let mut uart0 = Uart::new(peripherals.UART0);
+
+    
 
     rtc.swd.disable();
     rtc.rwdt.disable();
@@ -45,9 +47,15 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        writeln!(uart0, "Hello world!").unwrap();
+        
+        //writeln!(uart0, "Hello world!").unwrap();
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
     }
+}
+
+#[export_name = "DefaultHanler"]
+fn interruptHandler(){
+    rprintln!("Hello world!");
 }

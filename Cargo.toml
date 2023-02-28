@@ -5,6 +5,9 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[patch.crates-io]
+rtt-target = { git = 'https://github.com/onsdagens/rtt-target' }
+
 [dependencies]
 
 cfg-if = "1.0.0"
