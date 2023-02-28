@@ -11,8 +11,9 @@ use esp32c3_hal::{
 };
 
 use core::panic::PanicInfo;
+use esp_link as _;
 
-// use esp_backtrace as _;
+// use esp_backtrace as _;h
 use rtt_target::{rprintln, rtt_init_print};
 
 #[entry]
