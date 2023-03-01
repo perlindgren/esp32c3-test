@@ -21,8 +21,8 @@
             "coreConfigs": [
                 {
                     "coreIndex": 0,
-                    //"programBinary": "./target/riscv32imc-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
-                    "programBinary": "./target/riscv32imac-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
+                    "programBinary": "./target/riscv32imc-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
+                    //"programBinary": "./target/riscv32imac-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
                     "rttEnabled": true,
                     // "rttChannelFormats": [
                     //     {
