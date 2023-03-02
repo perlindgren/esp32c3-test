@@ -24,12 +24,12 @@ MEMORY
 
     /* External flash */
     /* Instruction ROM */
-    IROM : ORIGIN =   0x42000000 + 0x20, LENGTH = 0x400000 - 0x20
+    IROM : ORIGIN =   0x42000000, LENGTH = 0x400000
     /* Data ROM */
     DROM : ORIGIN = 0x3C000000, LENGTH = 0x400000
 
     /* RTC fast memory (executable). Persists over deep sleep. */
-    RTC_FAST : ORIGIN = 0x50000000, LENGTH = 0x2000 /*- ESP_BOOTLOADER_RESERVE_RTC*/    
+    RTC_FAST : ORIGIN = 0x50000000, LENGTH = 0x2000 /*- ESP_BOOTLOADER_RESERVE_RTC*/
 }
 
 REGION_ALIAS("REGION_TEXT", IROM);

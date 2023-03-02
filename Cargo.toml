@@ -5,44 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[patch.crates-io]
-rtt-target = { git = 'https://github.com/onsdagens/rtt-target' }
-
 [dependencies]
-
-cfg-if = "1.0.0"
-esp-hal-common = { version = "0.7.0", features = ["esp32c3"] }
-r0 = "1.0.0"
-esp32c3 = "0.11.0"
-esp32c3-hal = { version = "0.7.0", features = ["rt"] }
-
+riscv-rt = "0.11.0"
 critical-section = "1.1.1"
-# esp-backtrace = { version = "0.5.0", features = [
-#     "esp32c3",
-#     "panic-handler",
-#     "exception-handler",
-#     "print-rtt",
-# ] }
-
 rtt-target = { version = "0.3.1", features = ["riscv"] }
 
-# [dependencies.esp-println]
-# version = "0.3.1"
-# #version = "0.4.0"
-# default-features = false
-# #features = ["esp32c3", "rtt"]
-# features = ["esp32c3"]
-
-
-[features]
-default = ["rt", "vectored", "direct-boot"]
-mcu-boot = []
-direct-boot = []
-rt = []
-vectored = ["esp-hal-common/vectored"]
-
 [profile.dev]
-opt-level = 1
+opt-level = "s"
 
 [profile.release]
 incremental = false

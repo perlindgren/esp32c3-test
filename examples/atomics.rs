@@ -15,10 +15,7 @@ fn main() -> ! {
     let test2:AtomicUsize = AtomicUsize::new(38);
 
     while counter<10{
-        //test.compare_exchange(15, 30);
         test.store(counter, Ordering::Relaxed);
-        //counter = test2.load(Ordering::Relaxed);
-        //test.store(counter, Ordering::Relaxed);
         if check(&test2, 38) {
             rprintln!("{}", counter);
             panic!();
