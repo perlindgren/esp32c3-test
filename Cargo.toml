@@ -11,7 +11,7 @@ cfg-if = "1.0.0"
 esp-hal-common = { version = "0.7.0", features = ["esp32c3"] }
 r0 = "1.0.0"
 esp32c3 = "0.11.0"
-esp32c3-hal = { version = "0.7.0", features = ["rt"] }
+esp32c3-hal = { version = "0.7.0", features = ["rt", "direct-boot"] }
 
 critical-section = "1.1.1"
 # esp-backtrace = { version = "0.5.0", features = [
@@ -21,7 +21,7 @@ critical-section = "1.1.1"
 #     "print-rtt",
 # ] }
 
-rtt-target = { version = "0.3.1", features = ["riscv"] }
+rtt-target = { version = "^0.4" }
 
 # [dependencies.esp-println]
 # version = "0.3.1"
