@@ -11,7 +11,8 @@ use esp32c3_hal::{
     clock::ClockControl, gpio::IO, peripherals::Peripherals, prelude::*, timer::TimerGroup, Delay,
     Rtc, Uart,
 };
-use esp_backtrace as _;
+
+use core::panic::PanicInfo;
 
 #[entry]
 fn main() -> ! {
@@ -49,5 +50,15 @@ fn main() -> ! {
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
+    }
+}
+
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {
+        unsafe {
+            core::arch::asm!("ebreak");
+        }
+        rprintln!("In a panic loop, stepped past the breakpoint");
     }
 }

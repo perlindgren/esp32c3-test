@@ -10,10 +10,11 @@ use esp32c3_hal::{
     Rtc,
 };
 
-use core::panic::PanicInfo;
-
-// use esp_backtrace as _;
 use rtt_target::{rprintln, rtt_init_print};
+
+use esp32c3_test as _; // panic handler
+
+// use panic_rtt_target as _;
 
 #[entry]
 fn main() -> ! {
@@ -35,7 +36,7 @@ fn main() -> ! {
     wdt0.disable();
     wdt1.disable();
 
-    rprintln!("here");
+    rprintln!("main");
     // Set GPIO7 as an output, and set its state high initially.
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut led = io.pins.gpio7.into_push_pull_output();
@@ -51,15 +52,5 @@ fn main() -> ! {
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
-    }
-}
-
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {
-        unsafe {
-            core::arch::asm!("ebreak");
-        }
-        rprintln!("In a panic loop, stepped past the breakpoint");
     }
 }

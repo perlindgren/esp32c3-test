@@ -4,6 +4,7 @@
         "GPIO",
         "blinky",
         "espflash",
+        "imac",
         "println",
         "riscv",
         "rprintln",

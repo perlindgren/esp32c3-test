@@ -14,27 +14,13 @@ esp32c3 = "0.11.0"
 esp32c3-hal = { version = "0.7.0", features = ["rt"] }
 
 critical-section = "1.1.1"
-# esp-backtrace = { version = "0.5.0", features = [
-#     "esp32c3",
-#     "panic-handler",
-#     "exception-handler",
-#     "print-rtt",
-# ] }
-
 rtt-target = { version = "0.3.1", features = ["riscv"] }
-
-# [dependencies.esp-println]
-# version = "0.3.1"
-# #version = "0.4.0"
-# default-features = false
-# #features = ["esp32c3", "rtt"]
-# features = ["esp32c3"]
-
+# panic-rtt-target = "0.1.2"
 
 [features]
 default = ["rt", "vectored", "direct-boot"]
 mcu-boot = []
-direct-boot = []
+direct-boot = ["esp32c3-hal/direct-boot"]
 rt = []
 vectored = ["esp-hal-common/vectored"]
 
