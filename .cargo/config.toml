@@ -1,10 +1,6 @@
 [target.riscv32imac-unknown-none-elf]
-# runner = "probe-run --chip esp32c3" # does not currently work
 runner = "espflash --format direct-boot --monitor"
 rustflags = ["-C", "link-arg=-Tlinkall.x"]
 
 [build]
 target = "riscv32imac-unknown-none-elf"
-
-[unstable]
-build-std = ["core"]

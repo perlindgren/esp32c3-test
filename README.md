@@ -4,6 +4,13 @@ Playground for experimentation with the esp32c3-rust board.
 
 ---
 
+## Resources
+
+- [esp-rust-board](https://github.com/esp-rs/esp-rust-board)
+- [esp32c3](https://www.espressif.com/sites/default/files/documentation/esp32-c3_technical_reference_manual_en.pdf)
+
+---
+
 ## Setup
 
 `espflash` and `cargo-espflash` are optional. We use the `imac` target with emulated atomics. 
@@ -35,25 +42,13 @@ cargo run --example blinky_rtt
 
 ---
 
-## `lib.rs`
-
-The library just contain a custom panic handler using rtt.
-
----
-
 ## Examples
 
-For now just a simple `blinky` with `esp32_println` tracing.
-
-``` shell
-cargo run --example blinky
-```
-
-or
-
-```shell
-cargo espflash --release --example blinky --format direct-boot --monitor
-```
+- `panic` using the `rtt_target` and `panic_rtt_target`.
+- `gpio_interrupt`, using the `boot` pin to trigger an interrupt, the `led` blinks independently.
+- `blinky_rtt` similar to `gpio_interrupt` (but only blinking)
+- `blinky_usart` blinks and traces over both RTT and usart (not validated)
+- `serial_interrupt` some sort of weird serial cmd receiver (not validated)
 
 ---
 
@@ -61,13 +56,9 @@ cargo espflash --release --example blinky --format direct-boot --monitor
 
 The `.vscode` folder provides `launch.json` and `tasks.json` configuration files for using [probe-rs-debugger](https://probe.rs/docs/tools/vscode/) in a seamless fashion. 
 
-
-
 ---
+
 ## Notes
 
-For some reason it needs the `ld` folder together with the `build.rs` locally in this crate (though they should be provided through the dependency to `esp32c3-hal`).
-
-In the blinky example a trace over USART0 is also generated unclear if/how this serial communication is handled by the programmer.
-
+The `Cargo.toml` and `.cargo/config` are now distilled to a minimum for experimentation. We rely on emulated atomics for `imac` target, allowing us to use the current `rtt_target`. 
 

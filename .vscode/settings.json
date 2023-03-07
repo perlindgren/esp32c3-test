@@ -9,6 +9,7 @@
         "riscv",
         "rprintln",
         "rustup",
-        "rwdt"
+        "rwdt",
+        "usart"
     ]
 }

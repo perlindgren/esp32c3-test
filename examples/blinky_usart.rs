@@ -12,10 +12,13 @@ use esp32c3_hal::{
     Rtc, Uart,
 };
 
-use core::panic::PanicInfo;
+use rtt_target::{rprintln, rtt_init_print};
+
+use panic_rtt_target as _;
 
 #[entry]
 fn main() -> ! {
+    rtt_init_print!();
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
@@ -46,19 +49,10 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        writeln!(uart0, "Hello world!").unwrap();
+        rprintln!("blink");
+        writeln!(uart0, "blink").unwrap();
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
-    }
-}
-
-#[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    loop {
-        unsafe {
-            core::arch::asm!("ebreak");
-        }
-        rprintln!("In a panic loop, stepped past the breakpoint");
     }
 }
