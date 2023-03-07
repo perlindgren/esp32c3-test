@@ -12,10 +12,12 @@ esp-hal-common = { version = "0.7.0", features = ["esp32c3"] }
 r0 = "1.0.0"
 esp32c3 = "0.11.0"
 esp32c3-hal = { version = "0.7.0", features = ["rt"] }
-
 critical-section = "1.1.1"
-rtt-target = { version = "0.3.1", features = ["riscv"] }
-# panic-rtt-target = "0.1.2"
+
+# panic-rtt-target = { version = "0.1.2", features = ["riscv"] }
+panic-rtt-target = { version = "0.1.2" }
+# rtt-target = { version = "0.4.0", features = ["riscv"] }
+rtt-target = { version = "0.4.0" }
 
 [features]
 default = ["rt", "vectored", "direct-boot"]
@@ -25,7 +27,7 @@ rt = []
 vectored = ["esp-hal-common/vectored"]
 
 [profile.dev]
-opt-level = 1
+opt-level = 0
 
 [profile.release]
 incremental = false
@@ -34,3 +36,7 @@ debug = true        # symbols are nice and they don't increase the size on Flash
 lto = true          # better optimizations
 opt-level = "s"
 # overflow-checks = true # uncomment (or set to false) to enable overflow checks for release builds
+
+[patch.crates-io]
+panic-rtt-target = { path = '../rtt-target/panic-rtt-target/' }
+rtt-target = { path = '../rtt-target/rtt-target' }
