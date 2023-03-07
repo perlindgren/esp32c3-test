@@ -46,11 +46,11 @@ fn main() -> ! {
 
     rprintln!("here");
 
-    // Set GPIO5 as an output
+    // Set GPIO7 as an output connected to the LED
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
     let mut led = io.pins.gpio7.into_push_pull_output();
 
-    // Set GPIO9 as an input
+    // Set GPIO9 as an input connected to the "boot" button
     let mut button = io.pins.gpio9.into_pull_down_input();
     button.listen(Event::FallingEdge);
 
