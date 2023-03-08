@@ -12,24 +12,28 @@ use critical_section::Mutex;
 use esp32c3_hal::{
     clock::ClockControl,
     gpio::{Event, Gpio9, Input, PullDown, IO},
-    interrupt,
+    interrupt::{self},
     peripherals::{self, Peripherals},
     prelude::*,
     riscv,
     timer::TimerGroup,
     Delay, Rtc,
 };
+use esp_hal_common::system::{SoftwareInterruptControl, SoftwareInterrupt};
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 
 static BUTTON: Mutex<RefCell<Option<Gpio9<Input<PullDown>>>>> = Mutex::new(RefCell::new(None));
+static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
     rtt_init_print!();
     let peripherals = Peripherals::take();
-    let system = peripherals.SYSTEM.split();
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let system =peripherals.SYSTEM.split();
+    let clockctrl = system.clock_control;
+    let sw_int = system.software_interrupt_control;
+    let clocks = ClockControl::boot_defaults(clockctrl).freeze();
 
     // Disable the watchdog timers. For the ESP32-C3, this includes the Super WDT,
     // the RTC WDT, and the TIMG WDTs.
@@ -38,6 +42,8 @@ fn main() -> ! {
     let mut wdt0 = timer_group0.wdt;
     let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
     let mut wdt1 = timer_group1.wdt;
+
+    
 
     rtc.swd.disable();
     rtc.rwdt.disable();
@@ -53,19 +59,25 @@ fn main() -> ! {
     // Set GPIO9 as an input connected to the "boot" button
     let mut button = io.pins.gpio9.into_pull_down_input();
     button.listen(Event::FallingEdge);
-
     critical_section::with(|cs| BUTTON.borrow_ref_mut(cs).replace(button));
+    critical_section::with(|cs| SWINT.borrow_ref_mut(cs).replace(sw_int));
+
 
     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
-
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR0, interrupt::Priority::Priority3).unwrap();
     unsafe {
         riscv::interrupt::enable();
+        
     }
-
     let mut delay = Delay::new(&clocks);
+
     loop {
         led.toggle().unwrap();
+
         delay.delay_ms(500u32);
+        critical_section::with(|cs| {
+            SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt0);
+        });
     }
 }
 
@@ -78,5 +90,12 @@ fn GPIO() {
             .as_mut()
             .unwrap()
             .clear_interrupt();
+    });
+}
+#[interrupt]
+fn FROM_CPU_INTR0() {
+    rprintln!("SW interrupt");
+    critical_section::with(|cs| {
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().clear(SoftwareInterrupt::SoftwareInterrupt0);
     });
 }
