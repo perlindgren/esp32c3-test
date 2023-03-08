@@ -65,19 +65,37 @@ fn main() -> ! {
 
     interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
     interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR0, interrupt::Priority::Priority3).unwrap();
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR1, interrupt::Priority::Priority3).unwrap();
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR2, interrupt::Priority::Priority3).unwrap();
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR3, interrupt::Priority::Priority3).unwrap();
     unsafe {
         riscv::interrupt::enable();
         
     }
     let mut delay = Delay::new(&clocks);
-
+    let mut counter = 0;
     loop {
         led.toggle().unwrap();
 
         delay.delay_ms(500u32);
-        critical_section::with(|cs| {
-            SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt0);
-        });
+        match counter {           
+            0=>critical_section::with(|cs| {
+                    SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt0);
+                    }),
+            1=>critical_section::with(|cs| {
+                    SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt1);
+                    }),
+            2=>critical_section::with(|cs| {
+                    SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt2);
+                    }),
+            3=>{critical_section::with(|cs| {
+                    SWINT.borrow_ref_mut(cs).as_mut().unwrap().set(SoftwareInterrupt::SoftwareInterrupt3);
+                    });
+                counter = -1},
+            _=> {}
+        }
+        counter +=1;
+        
     }
 }
 
@@ -94,8 +112,29 @@ fn GPIO() {
 }
 #[interrupt]
 fn FROM_CPU_INTR0() {
-    rprintln!("SW interrupt");
+    rprintln!("SW interrupt0");
     critical_section::with(|cs| {
         SWINT.borrow_ref_mut(cs).as_mut().unwrap().clear(SoftwareInterrupt::SoftwareInterrupt0);
+    });
+}
+#[interrupt]
+fn FROM_CPU_INTR1() {
+    rprintln!("SW interrupt1");
+    critical_section::with(|cs| {
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().clear(SoftwareInterrupt::SoftwareInterrupt1);
+    });
+}
+#[interrupt]
+fn FROM_CPU_INTR2() {
+    rprintln!("SW interrupt2");
+    critical_section::with(|cs| {
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().clear(SoftwareInterrupt::SoftwareInterrupt2);
+    });
+}
+#[interrupt]
+fn FROM_CPU_INTR3() {
+    rprintln!("SW interrupt3");
+    critical_section::with(|cs| {
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().clear(SoftwareInterrupt::SoftwareInterrupt3);
     });
 }
