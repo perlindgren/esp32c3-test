@@ -34,6 +34,7 @@ fn main() -> ! {
     let system =peripherals.SYSTEM.split();
     let clockctrl = system.clock_control;
     let sw_int = system.software_interrupt_control;
+    let intctl = peripherals.INTERRUPT_CORE0;
     let clocks = ClockControl::boot_defaults(clockctrl).freeze();
 
     // Disable the watchdog timers. For the ESP32-C3, this includes the Super WDT,
@@ -43,7 +44,7 @@ fn main() -> ! {
     let mut wdt0 = timer_group0.wdt;
     let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
     let mut wdt1 = timer_group1.wdt;
-
+    
     
 
     rtc.swd.disable();
@@ -64,13 +65,16 @@ fn main() -> ! {
     critical_section::with(|cs| SWINT.borrow_ref_mut(cs).replace(sw_int));
 
 
-    interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority3).unwrap();
+    interrupt::enable(peripherals::Interrupt::GPIO, interrupt::Priority::Priority4).unwrap();
     interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR0, interrupt::Priority::Priority3).unwrap();
-    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR1, interrupt::Priority::Priority3).unwrap();
-    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR2, interrupt::Priority::Priority3).unwrap();
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR1, interrupt::Priority::Priority1).unwrap();
+    interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR2, interrupt::Priority::Priority2).unwrap();
     interrupt::enable(peripherals::Interrupt::FROM_CPU_INTR3, interrupt::Priority::Priority3).unwrap();
+
     unsafe {
         riscv::interrupt::enable();
+        //eventually this will be in the HAL, for now just do it via PAC
+        intctl.cpu_int_thresh.write(|w|w.cpu_int_thresh().bits(3));
         
     }
     let mut delay = Delay::new(&clocks);
@@ -110,13 +114,31 @@ fn GPIO() {
             .unwrap()
             .clear_interrupt();
     });
+    /*let mut counter = 0;
+    loop{
+        rprintln!("GPIO");
+        counter+=1;
+        if counter > 50_000 {
+            break;
+        }
+    }*/
 }
 #[interrupt]
 fn FROM_CPU_INTR0() {
     rprintln!("SW interrupt0");
     critical_section::with(|cs| {
         SWINT.borrow_ref_mut(cs).as_mut().unwrap().reset(SoftwareInterrupt::SoftwareInterrupt0);
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().raise(SoftwareInterrupt::SoftwareInterrupt3);
+        SWINT.borrow_ref_mut(cs).as_mut().unwrap().raise(SoftwareInterrupt::SoftwareInterrupt1);
     });
+    let mut counter = 0;
+    loop{
+        if counter%100 == 0 {rprintln!("{}", counter);}
+        counter+=1;
+        if counter > 50_000 {
+            break;
+        }
+    }
 }
 #[interrupt]
 fn FROM_CPU_INTR1() {
