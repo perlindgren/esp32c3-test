@@ -24,5 +24,5 @@ opt-level = "s"
 [patch.crates-io]
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp-hal-common = {path = '/home/pawel/Desktop/hal_tings/esp-hal/esp-hal-common'}
-esp32c3-hal = {path = '/home/pawel/Desktop/hal_tings/esp-hal/esp32c3-hal' }
+esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal'}
+esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal' }
