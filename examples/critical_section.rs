@@ -44,9 +44,7 @@ fn main() -> ! {
     wdt0.disable();
     wdt1.disable();
 
-    unsafe {
-        //    riscv::interrupt::enable();
-    }
+    // interrupts seems to be enabled by default
     // init runs in CS
     critical_section::with(|cs| {
         rprintln!("enter cs");
