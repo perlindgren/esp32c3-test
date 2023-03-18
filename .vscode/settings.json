@@ -2,9 +2,13 @@
     "cSpell.ignoreWords": [
         "CNTL",
         "GPIO",
+        "SWINT",
+        "TIMG",
         "blinky",
+        "clockctrl",
         "espflash",
         "imac",
+        "intctl",
         "println",
         "riscv",
         "rprintln",
