@@ -48,7 +48,7 @@ fn main() -> ! {
     wdt0.disable();
     wdt1.disable();
 
-    rprintln!("here");
+    rprintln!("press `boot` button to trigger interrupt");
 
     // Set GPIO7 as an output connected to the LED
     let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);

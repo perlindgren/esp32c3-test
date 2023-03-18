@@ -45,10 +45,11 @@ cargo run --example blinky_rtt
 ## Examples
 
 - `panic` using the `rtt_target` and `panic_rtt_target`.
-- `gpio_interrupt`, using the `boot` pin to trigger an interrupt, the `led` blinks independently.
+- `gpio_interrupt`, using the `boot` pin to trigger an interrupt, the `led` blinks independently, software interrupts run in background.
 - `blinky_rtt` similar to `gpio_interrupt` (but only blinking)
 - `blinky_usart` blinks and traces over both RTT and usart (not validated)
 - `serial_interrupt` some sort of weird serial cmd receiver (not validated)
+- `software_interrupt` triggers software interrupts periodically.
 
 ---
 
