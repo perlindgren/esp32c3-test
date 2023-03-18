@@ -13,16 +13,18 @@ esp32c3-hal = { version = "0.7.0", features = ["rt", "direct-boot"] }
 critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
+esp-riscv-rt = {version = "0.1.0"}
 
 [profile.release]
 incremental = false
 codegen-units = 1   # better optimizations
 debug = true        # symbols are nice and they don't increase the size on Flash
 lto = true          # better optimizations
-opt-level = "s"
+opt-level = 3
 
 [patch.crates-io]
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal'}
-esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal' }
+esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
+esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
+esp-riscv-rt = {git = 'https://github.com/onsdagens/esp-riscv-rt', branch='experiments'}
