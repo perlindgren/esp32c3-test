@@ -22,7 +22,7 @@ lto = true          # better optimizations
 opt-level = "s"
 
 [patch.crates-io]
-panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal/'}
-esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal/' }
+panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
+rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
+esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/' }
+esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/' }
