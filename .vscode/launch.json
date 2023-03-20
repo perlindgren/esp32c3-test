@@ -23,14 +23,6 @@
                     "coreIndex": 0,
                     "programBinary": "./target/riscv32imac-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
                     "rttEnabled": true,
-                    // "rttChannelFormats": [
-                    //     {
-                    //         "channelNumber": 0,
-                    //         "dataFormat": "String", // Format RTT data as String data
-                    //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
-                    //     },
-                    // ],
-                    // "svdFile": "./.vscode/X.svd"
                 }
             ]
         },
@@ -53,24 +45,6 @@
                     "coreIndex": 0,
                     "programBinary": "./target/riscv32imac-unknown-none-elf/release/examples/${fileBasenameNoExtension}",
                     "rttEnabled": true,
-                    // "rttChannelFormats": [
-                    //     {
-                    //         "channelNumber": 0,
-                    //         "dataFormat": "String", // Format RTT data as String data
-                    //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
-                    //     },
-                    //     {
-                    //         "channelNumber": 1,
-                    //         "dataFormat": "String", // Format RTT data as String data
-                    //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
-                    //     },
-                    //     {
-                    //         "channelNumber": 1,
-                    //         "dataFormat": "String", // Format RTT data as String data
-                    //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
-                    //     },
-                ],
-                // "svdFile": "./.vscode/X.svd",
             }
         ]
     }
