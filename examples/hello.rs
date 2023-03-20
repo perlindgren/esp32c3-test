@@ -3,11 +3,11 @@
 #![no_std]
 
 use panic_rtt_target as _;
-use esp_riscv_rt::interrupt;
-
+use esp32c3_hal::{prelude::*};
+use esp32c3::{Interrupt};
 #[rtic::app(device = esp32c3)]
 mod app {
-    use rtt_target::{rtt_init, rprintln};
+    use rtt_target::{rtt_init_print, rprintln};
 
     #[shared]
     struct Shared {}
@@ -18,6 +18,7 @@ mod app {
     // do nothing in init
     #[init]
     fn init(_: init::Context) -> (Shared, Local) {
+        rtt_init_print!();
         (Shared {}, Local {})
     }
 
@@ -33,4 +34,9 @@ mod app {
             }
         }
     }
+
+   // #[task(binds=FROM_CPU_INTR0)]
+   // fn handler(mut cx: handler::Context){
+
+   // }
 }

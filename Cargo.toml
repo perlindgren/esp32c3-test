@@ -8,8 +8,8 @@ edition = "2021"
 [dependencies]
 cfg-if = "1.0.0"
 esp-hal-common = { version = "0.7.0", features = ["esp32c3", "vectored"] }
-esp32c3 = "0.11.0"
-esp32c3-hal = { version = "0.7.0", features = ["rt", "direct-boot"] }
+esp32c3 = {version = "0.11.0", features = ["rt"]}
+esp32c3-hal = { version = "0.7.0", features = ["direct-boot"] }
 critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
@@ -24,9 +24,11 @@ lto = true          # better optimizations
 opt-level = 3
 
 [patch.crates-io]
-rtic = {path = '/home/pawel/rtic/rtic'}
+ rtic = {path = '/home/pawel/rtic/rtic'}
+#rtic = {git = 'https://github.com/onsdagens/rtic', branch='esp32c3'}
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
-esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
-#esp-riscv-rt = {git = 'https://github.com/onsdagens/esp-riscv-rt', branch='experiments'}
+
+# esp-hal-common = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
+# esp32c3-hal = {git = 'https://github.com/onsdagens/esp-hal', branch='interrupt_controller'}
+# esp-riscv-rt = {git = 'https://github.com/onsdagens/esp-riscv-rt', branch='experiments'}
