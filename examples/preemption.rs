@@ -5,6 +5,8 @@
 
 #[rtic::app(device = esp32c3)]
 mod app {
+
+    use esp32c3_hal::interrupt;
     use panic_rtt_target as _;
     use esp32c3_hal::{
     clock::ClockControl,
@@ -61,30 +63,19 @@ mod app {
         (Shared {sw_int}, Local {done})
     }
 
-    // idle never returns, function has the "never type" !
     #[idle(shared = [sw_int])]
     fn idle(mut cx: idle::Context) -> ! {
         
         rprintln!("idle");
-        //panic!();
         cx.shared.sw_int.lock(|sw_int|sw_int.raise(SoftwareInterrupt::SoftwareInterrupt0));
-        
-        let mut x = core::u32::MAX - 1;
-        loop {
-            // prevent optimization by read-volatile (unsafe)
-            unsafe {
-                core::ptr::read_volatile(&x);
-            }
-        }
+        loop {}
     }
 
     #[task(binds=FROM_CPU_INTR0, shared = [sw_int], local = [done], priority = 5)]
     fn handler_int0(mut cx: handler_int0::Context){
-        let mut done = cx.local.done;
+        let done = cx.local.done;
         cx.shared.sw_int.lock(|sw_int|{
-            //panic!();
             sw_int.reset(SoftwareInterrupt::SoftwareInterrupt0);
-            //panic!();
             if !*done{
                 sw_int.raise(SoftwareInterrupt::SoftwareInterrupt1);
                 *done = true; //we only want to do this once so flip a flag.
@@ -92,13 +83,12 @@ mod app {
             rprintln!("Inside lock 0 (prio ceiling 5)");
         });
         rprintln!("Exited lock 0 (prio ceiling 5)");
-    }   
-
+    }
     #[task(binds=FROM_CPU_INTR1, shared = [sw_int], priority = 4)]
     fn handler_int1(mut cx: handler_int1::Context){
-       // panic!();
         cx.shared.sw_int.lock(|sw_int|{
             sw_int.reset(SoftwareInterrupt::SoftwareInterrupt1); 
+            //pend a higher prio interrupt
             sw_int.raise(SoftwareInterrupt::SoftwareInterrupt0);
             //this should be printed first
             rprintln!("Inside lock 1 (prio ceiling 5), should get preempted by SW_INT0 when we leave lock");
