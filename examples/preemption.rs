@@ -14,8 +14,10 @@ mod app {
     prelude::*,
     timer::TimerGroup,
     system::{SoftwareInterrupt, SoftwareInterruptControl},
-    Rtc
+    Rtc,
+    gpio::{Event, Gpio9, Input, PullDown, IO},
     };
+   
     use rtt_target::{rtt_init_print, rprintln};
 
     #[shared]
@@ -26,6 +28,7 @@ mod app {
     #[local]
     struct Local {
         done:bool,
+        button:Gpio9<Input<PullDown>>,
     }
 
     // do nothing in init
@@ -52,6 +55,10 @@ mod app {
         let mut wdt0 = timer_group0.wdt;
         let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
         let mut wdt1 = timer_group1.wdt;
+
+        let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
+        let mut button = io.pins.gpio9.into_pull_down_input();
+        button.listen(Event::FallingEdge);
     
         rtc.swd.disable();
         rtc.rwdt.disable();
@@ -60,7 +67,7 @@ mod app {
 
         let done = false;
 
-        (Shared {sw_int}, Local {done})
+        (Shared {sw_int}, Local {done, button})
     }
 
     #[idle(shared = [sw_int])]
@@ -95,5 +102,10 @@ mod app {
         });
         //this should be printed AFTER "Interrupted by 0", since we've left lock and priority ceiling has dropped
         rprintln!("Exited lock 1 (prio ceiling 4)");
+    }
+    #[task(binds=GPIO, local=[button], priority = 3)]
+    fn gpio_handler(cx: gpio_handler::Context){
+        cx.local.button.clear_interrupt();
+        rprintln!("button");
     }
 }

@@ -1,20 +1,22 @@
 #![no_main]
 #![no_std]
+#![feature(type_alias_impl_trait)]
 
 
 
-#[rtic::app(device = esp32c3)]
+#[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR2])]
 mod app {
 
-    use esp32c3_hal::interrupt;
+    //use esp32c3_hal::interrupt;
+   // use esp32c3::Interrupt;
     use panic_rtt_target as _;
     use esp32c3_hal::{
-    clock::ClockControl,
+    //clock::ClockControl,
     peripherals::{Peripherals},
     prelude::*,
-    timer::TimerGroup,
+    //timer::TimerGroup,
     system::{SoftwareInterrupt, SoftwareInterruptControl},
-    Rtc,
+   // Rtc,
     gpio::{Event, Gpio9, Input, PullDown, IO},
     };
    
@@ -44,9 +46,9 @@ mod app {
 
         let peripherals = Peripherals::take();
         let system = peripherals.SYSTEM.split();
-        let clockctrl = system.clock_control;
+        //let clockctrl = system.clock_control;
         let mut sw_int = system.software_interrupt_control;
-        let clocks = ClockControl::boot_defaults(clockctrl).freeze();
+      /*   let clocks = ClockControl::boot_defaults(clockctrl).freeze();
     
         // Disable the watchdog timers. For the ESP32-C3, this includes the Super WDT,
         // the RTC WDT, and the TIMG WDTs.
@@ -54,16 +56,16 @@ mod app {
         let timer_group0 = TimerGroup::new(peripherals.TIMG0, &clocks);
         let mut wdt0 = timer_group0.wdt;
         let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
-        let mut wdt1 = timer_group1.wdt;
+        let mut wdt1 = timer_group1.wdt; */
 
         let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
         let mut button = io.pins.gpio9.into_pull_down_input();
         button.listen(Event::FallingEdge);
     
-        rtc.swd.disable();
+       /*  rtc.swd.disable();
         rtc.rwdt.disable();
         wdt0.disable();
-        wdt1.disable();
+        wdt1.disable(); */
 
         let done = false;
 
@@ -108,4 +110,10 @@ mod app {
         cx.local.button.clear_interrupt();
         rprintln!("button");
     }
+
+    #[task(priority = 2)]
+    async fn sw_task(cx: sw_task::Context, data: u8) {
+        rprintln!("SW task")
+    }
+
 }
