@@ -14,7 +14,7 @@ critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
 esp-riscv-rt = {version = "0.1.0"}
-rtic = {version = "2.0.0-alpha.0"}
+rtic = {version = "2.0.0-alpha.0", features=["riscv-esp32c3-backend"]}
 
 [profile.release]
 incremental = false
@@ -29,4 +29,4 @@ rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-
 esp-riscv-rt = {git = 'https://github.com/onsdagens/esp-riscv-rt', branch='scaled_back'}
 esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/', branch='scaled_back' }
 esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='scaled_back' }
-rtic = {git = 'https://github.com/onsdagens/rtic/', branch='riscv_sw_tasks'}
+rtic = {git = 'https://github.com/onsdagens/rtic/', branch='riscv_refactor'}
