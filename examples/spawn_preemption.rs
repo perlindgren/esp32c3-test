@@ -7,7 +7,7 @@
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR1, FROM_CPU_INTR2, FROM_CPU_INTR0])]
 mod app {
     use panic_rtt_target as _;
-    use rtt_target::{rtt_init_print, rprintln};
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {}
@@ -24,7 +24,7 @@ mod app {
     }
 
     #[task(priority = 2)]
-    async fn foo(_: foo::Context, data:bool) {
+    async fn foo(_: foo::Context, data: bool) {
         rprintln!("foo entry");
         baz::spawn().unwrap();
         if data {
@@ -35,18 +35,17 @@ mod app {
     }
 
     #[task(priority = 3)]
-    async fn bar(_: bar::Context){
-        
+    async fn bar(_: bar::Context) {
         rprintln!("bar");
     }
 
     #[task(priority = 2)]
-    async fn baz(_: baz::Context){ 
+    async fn baz(_: baz::Context) {
         rprintln!("baz");
     }
 
     #[task(priority = 1)]
-    async fn qux(_: qux::Context){
+    async fn qux(_: qux::Context) {
         foo::spawn(false).unwrap();
         rprintln!("qux")
     }
