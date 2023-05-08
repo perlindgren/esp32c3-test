@@ -7,12 +7,13 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
-esp32c3 = {version = "0.13.0", features = ["rt"]}
-esp32c3-hal = { version = "0.8.0", features = ["direct-boot", "interrupt-preemption"] }
+esp32c3 = {version = "0.14.0", features = ["rt"]}
+esp32c3-hal = { path = "/home/pawel/suckless/esp-hal/esp32c3-hal/", features = ["direct-boot"] }
 critical-section = "1.1.1"
-panic-rtt-target = { version = "0.1.2" }
-rtt-target = { version = "0.4.0" }
-rtic = {version = "2.0.0-alpha.1", features=["riscv-esp32c3-backend"]}
+#panic-rtt-target = { version = "0.1.2", features=["riscv"]}
+
+rtt-target = { version = "0.3.1", features = ["riscv"] }
+rtic = {path="/home/pawel/suckless/rtic/rtic", features=["riscv-esp32c3-backend"]}
 
 [profile.release]
 incremental = false
@@ -22,7 +23,8 @@ lto = true          # better optimizations
 opt-level = 3
 
 [patch.crates-io]
-panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='interrupt_preemption' }
-rtic = {git = 'https://github.com/onsdagens/rtic/', branch='master'}
+#panic-rtt-target = { git = 'https://github.com/onsdagens/rtt-target'}
+rtt-target = { git = 'https://github.com/onsdagens/rtt-target'}
+riscv = {path = '/home/pawel/suckless/riscv'}
+#esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='interrupt_preemption' }
+#rtic = {git = 'https://github.com/onsdagens/rtic/', branch='master'}
