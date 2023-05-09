@@ -7,8 +7,8 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
-esp32c3 = {version = "0.13.0", features = ["rt"]}
-esp32c3-hal = { version = "0.8.0", features = ["direct-boot", "interrupt-preemption"] }
+esp32c3 = {version = "0.14.0", features = ["rt"]}
+esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption"] }
 critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
@@ -24,5 +24,5 @@ opt-level = 3
 [patch.crates-io]
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
-esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='interrupt_preemption' }
+#esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='interrupt_preemption' }
 rtic = {git = 'https://github.com/onsdagens/rtic/', branch='master'}
