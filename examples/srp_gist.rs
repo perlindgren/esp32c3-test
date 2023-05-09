@@ -36,12 +36,12 @@ mod app {
     #[task(priority = 3, shared = [shared_resource])]
     async fn bar(mut cx: bar::Context) {
         rprintln!("Low priority task entry");
-        cx.shared.shared_resource.lock(|middle_prio_resource|{
+        cx.shared.shared_resource.lock(|shared_resource|{
             rprintln!("Shared resource locked");
             baz::spawn().ok();
             foo::spawn().ok();
-            rprintln!("Shared resource value:{}", middle_prio_resource);
-            *middle_prio_resource = true;
+            rprintln!("Shared resource value:{}", shared_resource);
+            *shared_resource = true;
             rprintln!("Shared resource value updated to true");
             rprintln!("Shared resource unlocked");
         });
