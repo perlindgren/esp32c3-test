@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 cfg-if = "1.0.0"
 esp32c3 = {version = "0.14.0", features = ["rt"]}
-esp-riscv-rt = {path = '/home/pawel/rt/esp-riscv-rt'}
+esp-riscv-rt = {git = 'https://github.com/onsdagens/esp32c3-rtic-rt'}
 esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption"] }
 critical-section = "1.1.1"
 #panic-rtt-target = { version = "0.1.2" }
@@ -26,5 +26,5 @@ opt-level = 3
 #panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/onsdagens/rtt-target'}
 #esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/', branch='interrupt_preemption' }
-rtic = {path = '/home/pawel/rt/rtic/rtic'}
-esp-riscv-rt = {path = '/home/pawel/rt/esp-riscv-rt'}
+rtic = {git = 'https://github.com/onsdagens/rtic/', branch = 'improved-rt'}
+esp-riscv-rt = {git = 'https://github.com/onsdagens/esp32c3-rtic-rt'}
