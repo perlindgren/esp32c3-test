@@ -4,6 +4,7 @@
 
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR0])]
 mod app {
+    use esp32c3_hal as _;
     use panic_rtt_target as _;
     use rtt_target::{rprintln, rtt_init_print};
 
