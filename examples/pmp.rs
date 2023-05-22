@@ -59,44 +59,49 @@ fn FROM_CPU_INTR0(){
     });
     rprintln!("{:?}",riscv::register::mstatus::read());
     rprintln!("Interrupt");
-    riscv::register::pmpaddr0::write(0x0000_0000);
-    riscv::register::pmpaddr1::write(0x1000_0000);
-    riscv::register::pmpaddr2::write(0x2000_2000);
-    riscv::register::pmpaddr3::write(0x3000_3000);
-    riscv::register::pmpaddr4::write(0x4000_4000);
-    riscv::register::pmpaddr5::write(0x5000_5000);
-    riscv::register::pmpaddr6::write(0x6000_6000);
-    riscv::register::pmpaddr7::write(0x7000_7000);
-    riscv::register::pmpaddr8::write(0x8000_8000);
-    riscv::register::pmpaddr9::write(0x9000_9000);
-    riscv::register::pmpaddr10::write(0xa000_a000);
-    riscv::register::pmpaddr11::write(0xb000_b000);
-    riscv::register::pmpaddr12::write(0xc000_c000);
-    riscv::register::pmpaddr13::write(0xd000_d000);
-    riscv::register::pmpaddr14::write(0xe000_e000);
-    riscv::register::pmpaddr15::write(0xf000_f000);
+    //regions need to be shifted right 2 bits i guess????
+    riscv::register::pmpaddr0::write(0x3fcc_f000 >> 2);
+    riscv::register::pmpaddr1::write(0x3fcc_ffff >> 2); //some data region
+    riscv::register::pmpaddr2::write(0x4000_0000 >> 2); 
+    riscv::register::pmpaddr3::write(0x4500_0000 >> 2);//instruction memory
+    riscv::register::pmpaddr4::write(0xFFFF_FFFF >> 2);
+    riscv::register::pmpaddr5::write(0x0);
+    riscv::register::pmpaddr6::write(0x0);
+    riscv::register::pmpaddr7::write(0x0);
+    riscv::register::pmpaddr8::write(0x0);
+    riscv::register::pmpaddr9::write(0x0);
+    riscv::register::pmpaddr10::write(0x0);
+    riscv::register::pmpaddr11::write(0x0);
+    riscv::register::pmpaddr12::write(0x0);
+    riscv::register::pmpaddr13::write(0x0);
+    riscv::register::pmpaddr14::write(0x0);
+    riscv::register::pmpaddr15::write(0x0);
     unsafe{
-        riscv::register::pmpcfg0::set_pmp(0, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg0::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false);
+        riscv::register::pmpcfg0::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false);
+        riscv::register::pmpcfg0::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false); //full access to some region
         riscv::register::pmpcfg0::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg1::set_pmp(0, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg1::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg1::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg2::set_pmp(0, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg2::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg2::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg2::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg3::set_pmp(0, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg3::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg3::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg3::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false);
+        riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false); //execute access to instruction memory
+        riscv::register::pmpcfg1::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false);
+        riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg1::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg1::set_pmp(3, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg2::set_pmp(0, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg2::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg2::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg2::set_pmp(3, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg3::set_pmp(0, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg3::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg3::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg3::set_pmp(3, riscv::register::Range::NA4, register::Permission::NONE, false);
+        rprintln!("{:32b}",riscv::register::pmpcfg0::read().bits);
+        rprintln!("{:32b}",riscv::register::pmpcfg1::read().bits);
     }
     let curr = riscv::register::mepc::read();
     unsafe{riscv::register::mstatus::set_mpp(riscv::register::mstatus::MPP::User)}
     rprintln!("{:x}", curr);
-    unsafe{
+    //move to user mode, run some instructions and load from allowed region. 
+    //Then load from disallowed region (should cause exception at second lw when stepping through the assembly)
+    unsafe{ 
         asm!("
             auipc t0, 0
             addi t0, t0, 14
@@ -106,12 +111,12 @@ fn FROM_CPU_INTR0(){
             nop
             nop
             nop
-            nop
-            nop
-            nop
+            li t0, 0x3fccf000
+            lw t1, 0(t0)
+            li t0, 0x3fccd000
+            lw t1, 0(t0)
         ");
     }
-    rprintln!("XDDDDD");
     loop{continue}
     //problemet här är: alla CSRs är skyddade i User Mode eg. får inte komma åt dom
     //ex. mstatus som krävs för att stänga av interrupts (critical sections)
@@ -121,6 +126,6 @@ fn FROM_CPU_INTR0(){
     //och returna annars panic loopa som nu.
     //let new = riscv::register::mepc::read();
     //rprintln!("{:x}", new);
-    rprintln!("Hi!");
+    //rprintln!("Hi!");
 
 }
