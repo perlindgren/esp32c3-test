@@ -21,11 +21,8 @@ static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefC
 unsafe fn main() ->!{
     rtt_init_print!();
     rprintln!("Hello");
-    let mut r:u32 = 20;
-    rprintln!("{:?}",riscv::register::mstatus::read());
-    rprintln!("{}", r);
     let p = Peripherals::take();
-    let mut system = p.SYSTEM.split();
+    let system = p.SYSTEM.split();
     //let io = IO::new(p.GPIO, p.IO_MUX);
     //let mut led = io.pins.gpio5.into_push_pull_output();
     let sw_int = system.software_interrupt_control;
@@ -45,7 +42,8 @@ unsafe fn main() ->!{
     });
 
     rprintln!("We back!");
-    loop{}
+    loop{continue}
+
 }
 
 #[interrupt]
@@ -57,7 +55,6 @@ fn FROM_CPU_INTR0(){
             .unwrap()
             .reset(SoftwareInterrupt::SoftwareInterrupt0);
     });
-    rprintln!("{:?}",riscv::register::mstatus::read());
     rprintln!("Interrupt");
     //regions need to be shifted right 2 bits i guess????
     riscv::register::pmpaddr0::write(0x3fcc_f000 >> 2);
@@ -93,13 +90,34 @@ fn FROM_CPU_INTR0(){
         riscv::register::pmpcfg3::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
         riscv::register::pmpcfg3::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
         riscv::register::pmpcfg3::set_pmp(3, riscv::register::Range::NA4, register::Permission::NONE, false);
-        rprintln!("{:32b}",riscv::register::pmpcfg0::read().bits);
-        rprintln!("{:32b}",riscv::register::pmpcfg1::read().bits);
     }
-    let curr = riscv::register::mepc::read();
+    //OPTION 1:
+    //Running tasks in machine mode with MPRV bit of mstatus set.
+    //This allows execution in machine mode, BUT with memory accesses
+    //filtered against the PMP as if the current mode was user.
+    //tentatively this doesn't seem to be implemented on the esp32c3 unfortuantely
+    
+    
+    
+    
+    
+    //OPTION 2:
+    //Straight running in user mode :)
+    /* The problem here is: Control Status Registers are protected
+    against RW operations in user mode. We may not for example disable interrupts
+    for a critical section etc. The solution for that would be writing an exception
+    handler that fetches the failing csrr/csrw instructions and runs them 
+    from machine mode. 
+    I think we should compile for imc and disregard the atomic emulation - it's
+    not very performant anyway, atomic-polyfill does the job better on single
+    hart targets such as this.
+    */
+    //set mpp field of status to user - at mret we will demote execution to user mode
     unsafe{riscv::register::mstatus::set_mpp(riscv::register::mstatus::MPP::User)}
-    rprintln!("{:x}", curr);
-    //move to user mode, run some instructions and load from allowed region. 
+    //read current PC, add 14 to it (instruction after mret)
+    //write result to mepc, at mret the MCU moves to user mode and starts executing
+    //starting at address in mepc
+    //run some instructions and load from allowed region. 
     //Then load from disallowed region (should cause exception at second lw when stepping through the assembly)
     unsafe{ 
         asm!("
@@ -118,14 +136,6 @@ fn FROM_CPU_INTR0(){
         ");
     }
     loop{continue}
-    //problemet här är: alla CSRs är skyddade i User Mode eg. får inte komma åt dom
-    //ex. mstatus som krävs för att stänga av interrupts (critical sections)
-    //lösning: en exception handler som hanterar detta...
-    //kolla mepc on exception, om det är en csrr csrw matcha mot register
-    //som vi kan tänka oss att tillåta
-    //och returna annars panic loopa som nu.
-    //let new = riscv::register::mepc::read();
-    //rprintln!("{:x}", new);
-    //rprintln!("Hi!");
+
 
 }
