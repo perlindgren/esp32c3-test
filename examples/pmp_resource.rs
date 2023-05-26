@@ -1,8 +1,11 @@
 #![no_main]
 #![no_std]
+#![feature(min_specialization)]
+use core::ops::Deref;
 use esp32c3_hal::{entry, riscv::register};
 use rtt_target::{rtt_init_print, rprintln};
 use panic_rtt_target as _;
+use esp32c3::{Peripherals as pac_p, GPIO};
 use esp32c3_hal::{
     riscv, 
     prelude::*, 
@@ -13,6 +16,14 @@ use esp32c3_hal::{
 use core::arch::asm;
 use core::cell::RefCell;
 use critical_section::Mutex;
+use layout_derive::Layout;
+use layout_trait::GetLayout;
+use heapless::Vec;
+
+#[derive(Layout)]
+struct Resources{
+    gpio:GPIO,
+}
 
 static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefCell::new(None));
 //static LED: Mutex<RefCell<Option<GpioPin<Output<PushPull>>>>> = Mutex::new(RefCell::new(None));
@@ -22,8 +33,6 @@ unsafe fn main() ->!{
     rprintln!("Hello");
     let p = Peripherals::take();
     let system = p.SYSTEM.split();
-    //let io = IO::new(p.GPIO, p.IO_MUX);
-    //let mut led = io.pins.gpio5.into_push_pull_output();
     let sw_int = system.software_interrupt_control;
 
     critical_section::with(|cs| SWINT.borrow_ref_mut(cs).replace(sw_int));
@@ -54,14 +63,22 @@ fn FROM_CPU_INTR0(){
             .reset(SoftwareInterrupt::SoftwareInterrupt0);
     });
     rprintln!("Interrupt");
+
+    let mut layout: Vec<layout_trait::Layout, 8> = Vec::new();
+    let p = unsafe{pac_p::steal()};
+    let a = Resources{gpio:p.GPIO};
+    a.get_layout(&mut layout);
+    rprintln!("{:x}",layout[0].address);
+    rprintln!("{:x}",layout[0].size);
+
     //regions need to be shifted right 2 bits i guess????
     riscv::register::pmpaddr0::write(0x3fcc_f000 >> 2);
     riscv::register::pmpaddr1::write(0x3fcc_ffff >> 2); //some data region
     riscv::register::pmpaddr2::write(0x4000_0000 >> 2); 
     riscv::register::pmpaddr3::write(0x4500_0000 >> 2);//instruction memory
-    riscv::register::pmpaddr4::write(0xFFFF_FFFF >> 2);
-    riscv::register::pmpaddr5::write(0x0);
-    riscv::register::pmpaddr6::write(0x0);
+    riscv::register::pmpaddr4::write(layout[0].address >> 2);
+    riscv::register::pmpaddr5::write((layout[0].address + layout[0].size) >> 2);
+    riscv::register::pmpaddr6::write(0xFFFF_FFFF >> 2);
     riscv::register::pmpaddr7::write(0x0);
     riscv::register::pmpaddr8::write(0x0);
     riscv::register::pmpaddr9::write(0x0);
@@ -77,7 +94,7 @@ fn FROM_CPU_INTR0(){
         riscv::register::pmpcfg0::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
         riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false); //execute access to instruction memory
         riscv::register::pmpcfg1::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false);
-        riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
+        riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::NA4, register::Permission::RWX, false); //GPIO peripheral
         riscv::register::pmpcfg1::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
         riscv::register::pmpcfg1::set_pmp(3, riscv::register::Range::NA4, register::Permission::NONE, false);
         riscv::register::pmpcfg2::set_pmp(0, riscv::register::Range::NA4, register::Permission::NONE, false);
@@ -111,7 +128,7 @@ fn FROM_CPU_INTR0(){
     hart targets such as this.
     */
     //set mpp field of status to user - at mret we will demote execution to user mode
-    unsafe{riscv::register::mstatus::set_mpp(riscv::register::mstatus::MPP::User)}
+    //unsafe{riscv::register::mstatus::set_mpp(riscv::register::mstatus::MPP::User)}
     //read current PC, add 14 to it (instruction after mret)
     //write result to mepc, at mret the MCU moves to user mode and starts executing
     //starting at address in mepc
@@ -126,10 +143,12 @@ fn FROM_CPU_INTR0(){
         ");
     }
     unsafe{
-        let mut a = 0x3fcc_f000 as *mut u32;
-        *a = 40;
-        let mut b = 0x3fcc_d000 as *mut u32; //this causes pmp violation
+        let mut b = 0x3fcc_f000 as *mut u32;
         *b = 40;
+        a.gpio.func_out_sel_cfg[5].write(|w|w.out_sel().bits(128));
+
+        //let mut b = 0x3fcc_d000 as *mut u32; //this causes pmp violation
+        //*b = 40;
     }
     //loop{continue}
     unsafe{
