@@ -15,15 +15,12 @@ use core::cell::RefCell;
 use critical_section::Mutex;
 
 static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefCell::new(None));
-//static LED: Mutex<RefCell<Option<GpioPin<Output<PushPull>>>>> = Mutex::new(RefCell::new(None));
 #[entry]
 unsafe fn main() ->!{
     rtt_init_print!();
     rprintln!("Hello");
     let p = Peripherals::take();
     let system = p.SYSTEM.split();
-    //let io = IO::new(p.GPIO, p.IO_MUX);
-    //let mut led = io.pins.gpio5.into_push_pull_output();
     let sw_int = system.software_interrupt_control;
 
     critical_section::with(|cs| SWINT.borrow_ref_mut(cs).replace(sw_int));
@@ -54,7 +51,7 @@ fn FROM_CPU_INTR0(){
             .reset(SoftwareInterrupt::SoftwareInterrupt0);
     });
     rprintln!("Interrupt");
-    //regions need to be shifted right 2 bits i guess????
+    //This will come from an interator over the layout 
     riscv::register::pmpaddr0::write(0x3fcc_f000 >> 2);
     riscv::register::pmpaddr1::write(0x3fcc_ffff >> 2); //some data region
     riscv::register::pmpaddr2::write(0x4000_0000 >> 2); 
@@ -75,7 +72,7 @@ fn FROM_CPU_INTR0(){
         riscv::register::pmpcfg0::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false);
         riscv::register::pmpcfg0::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false); //full access to some region
         riscv::register::pmpcfg0::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);
-        riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RWX, false); //execute access to instruction memory
+        riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RX, false); //execute access to instruction memory
         riscv::register::pmpcfg1::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false);
         riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::NA4, register::Permission::NONE, false);
         riscv::register::pmpcfg1::set_pmp(2, riscv::register::Range::NA4, register::Permission::NONE, false);
@@ -93,12 +90,7 @@ fn FROM_CPU_INTR0(){
     //Running tasks in machine mode with MPRV bit of mstatus set.
     //This allows execution in machine mode, BUT with memory accesses
     //filtered against the PMP as if the current mode was user.
-    //tentatively this doesn't seem to be implemented on the esp32c3 unfortuantely
-    
-    
-    
-    
-    
+    //tentatively this doesn't seem to be implemented on the esp32c3 unfortuantely 
     //OPTION 2:
     //Straight running in user mode :)
     /* The problem here is: Control Status Registers are protected
@@ -115,8 +107,6 @@ fn FROM_CPU_INTR0(){
     //read current PC, add 14 to it (instruction after mret)
     //write result to mepc, at mret the MCU moves to user mode and starts executing
     //starting at address in mepc
-    //run some instructions and load from allowed region. 
-    //Then load from disallowed region (should cause exception at second lw when stepping through the assembly)
     unsafe{ 
         asm!("
             auipc t0, 0
@@ -126,13 +116,14 @@ fn FROM_CPU_INTR0(){
         ");
     }
     unsafe{
-        let mut a = 0x3fcc_f000 as *mut u32;
-        *a = 40;
-        let mut b = 0x3fcc_d000 as *mut u32; //this causes pmp violation
-        *b = 40;
+        let a = 0x3fcc_f000 as *mut u32;
+        *a = 40; //store at allowed region
+        //this causes PMP violation, uncomment to try.
+        //let mut b = 0x3fcc_d000 as *mut u32; 
+        //*b = 40;  //store at disallowed region
     }
-    //loop{continue}
-    unsafe{
+
+    unsafe{ //return from user mode.
         asm!("
             ecall
         ");

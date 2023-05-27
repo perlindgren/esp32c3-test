@@ -8,14 +8,14 @@ edition = "2021"
 [dependencies]
 cfg-if = "1.0.0"
 esp32c3 = {version = "0.14.0", features = ["rt"]}
-#esp32c3-hal = { git = "https://github.com/onsdagens/esp-hal/", branch = 'pmp', features = ["direct-boot", "interrupt-preemption"] }
-esp32c3-hal = {path = '/home/pawel/layout_protection/esp-hal/esp32c3-hal/', features = ["direct-boot", "interrupt-preemption"]}
+esp32c3-hal = { git = "https://github.com/onsdagens/esp-hal/", branch = 'pmp', features = ["direct-boot", "interrupt-preemption"] }
 critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
 layout-derive = { git = "https://github.com/perlindgren/layout-derive" }
 layout-trait = { git = "https://github.com/perlindgren/layout-trait" }
 heapless = "0.7.16"
+psm = "0.1.21"
 
 [profile.release]
 incremental = false
@@ -25,7 +25,7 @@ lto = true          # better optimizations
 opt-level = 3
 
 [patch.crates-io]
-esp-riscv-rt = {path = '/home/pawel/layout_protection/esp32c3-rtic-rt'}
-riscv = {path = '/home/pawel/layout_protection/riscv'}
+esp-riscv-rt = {git = 'https://github.com/onsdagens/esp32c3-rtic-rt', branch = 'pmp'}
+riscv = {git = 'https://github.com/onsdagens/riscv', branch='pmp'}
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
