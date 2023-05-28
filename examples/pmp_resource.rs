@@ -5,7 +5,7 @@
 use esp32c3_hal::{entry, riscv::register};
 use rtt_target::{rtt_init_print, rprintln};
 use panic_rtt_target as _;
-use esp32c3::{Peripherals as pac_p, GPIO};
+use esp32c3::{Peripherals as pac_p, GPIO, AES};
 use esp32c3_hal::{
     riscv, 
     prelude::*, 
@@ -57,15 +57,15 @@ unsafe fn main() ->!{
 
 //returns current stack pointer, not sure if this is the best way to do it.
 #[naked]
-unsafe extern "C" fn get_sp() -> usize {
+unsafe extern "C" fn get_fp() -> usize {
     asm!("
-    mv a0, sp
+    mv a0, s0
     jr ra
     ", options(noreturn));
 }
 #[interrupt]
 fn FROM_CPU_INTR0(){
-    let sp = stack_pointer();
+    let fp = unsafe{get_fp()};
 
     //clear the interrupt
     critical_section::with(|cs| {
@@ -77,9 +77,10 @@ fn FROM_CPU_INTR0(){
     });
 
     //get the current stack pointer for PMP config 
-    rprintln!("{:?}", sp);
+    rprintln!("{:?}", fp);
     let mut layout: Vec<layout_trait::Layout, 8> = Vec::new();
     let p = unsafe{pac_p::steal()};
+    //enable gpio output at io mux
     unsafe{p.IO_MUX.gpio[7].write(|w|w.mcu_sel().bits(1))};
     //wrap the GPIO resource in a struct because why not
     let a = Resources{ gpio:p.GPIO};
@@ -88,7 +89,7 @@ fn FROM_CPU_INTR0(){
 
     //TODO: this should be in an iterator over get_layout return...
     riscv::register::pmpaddr0::write(0x3000_000 >> 2); //unsure about bottom stack address honestly, this is TODO...
-    riscv::register::pmpaddr1::write((sp as usize) >> 2); //the stack
+    riscv::register::pmpaddr1::write((fp as usize) >> 2); //the stack
     riscv::register::pmpaddr2::write(0x4000_0000 >> 2); //instruction memory start
     riscv::register::pmpaddr3::write(0x4500_0000 >> 2);//instruction memory end (not sure about exact here, TODO..)
     riscv::register::pmpaddr4::write(layout[0].address >> 2); //set pmp around resource.
@@ -106,7 +107,7 @@ fn FROM_CPU_INTR0(){
     unsafe{
         riscv::register::pmpcfg0::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false); //no access to below stack
         riscv::register::pmpcfg0::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false);  //full access to stack
-        riscv::register::pmpcfg0::set_pmp(2, riscv::register::Range::TOR, register::Permission::RWX, false);  //no access between stack and instruction memory, something is broken about this so for now full access just to demo.
+        riscv::register::pmpcfg0::set_pmp(2, riscv::register::Range::TOR, register::Permission::NONE, false);  //no access between stack and instruction memory
         riscv::register::pmpcfg0::set_pmp(3, riscv::register::Range::TOR, register::Permission::RX, false); //execute access to instruction memory
         riscv::register::pmpcfg1::set_pmp(0, riscv::register::Range::TOR, register::Permission::NONE, false); //no access to between instruction memory and resources
         riscv::register::pmpcfg1::set_pmp(1, riscv::register::Range::TOR, register::Permission::RWX, false); //full access to resources
@@ -154,20 +155,7 @@ fn FROM_CPU_INTR0(){
             mret
         ");
     }
-    unsafe{
-        a.gpio.func_out_sel_cfg[7].write(|w|w.out_sel().bits(128)); //GPIO output setup
-        a.gpio.enable.write(|w|w.bits(1<<7));
-        a.gpio.out.write(|w|w.bits(1<<7)); //Set LED pin high
-        let mut i = 0; //Delay
-        while i<2000000 {
-            asm!("nop");
-            i+=1
-        }       
-        a.gpio.out.write(|w|w.bits(0<<7)); //Set LED pin low
-
-        //this is not allowed in PMP, causes violation, uncomment to try
-        //p.AES.dma_enable.write(|w|w.bits(0x1337));
-    }
+    blinky(a, p.AES);
     unsafe{//return from user mode.
         asm!("
             ecall
@@ -175,4 +163,22 @@ fn FROM_CPU_INTR0(){
     }
 
 
+}
+
+fn blinky(r: Resources, a:AES){
+
+    unsafe{
+        r.gpio.func_out_sel_cfg[7].write(|w|w.out_sel().bits(128)); //GPIO output setup
+        r.gpio.enable.write(|w|w.bits(1<<7));
+        r.gpio.out.write(|w|w.bits(1<<7)); //Set LED pin high
+        let mut i = 0; //Delay
+        while i<2000000 {
+            asm!("nop");
+            i+=1
+        }       
+        r.gpio.out.write(|w|w.bits(0<<7)); //Set LED pin low
+
+        //this is not declared as part of resources, so will cause a PMP violation, uncomment to try.
+        //a.dma_enable.write(|w|w.bits(0x1337));
+    }
 }
