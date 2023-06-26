@@ -11,8 +11,7 @@ mod app {
         peripherals::Peripherals,
         prelude::*,
     };
-    //use panic_rtt_target as _;
-
+    use core::arch::asm;
     use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
@@ -42,7 +41,6 @@ mod app {
         rprintln!("idle");
         loop {}
     }
-
     #[task(priority = 5)]
     async fn foo(_: foo::Context) {
         bar::spawn().unwrap(); //enqueue low prio task
@@ -50,6 +48,7 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
+            unsafe{esp32c3_hal::riscv::asm::nop()}; //prevent optimization
         }
         rprintln!("Leaving high prio task.");
     }
@@ -59,6 +58,7 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
+            unsafe{esp32c3_hal::riscv::asm::nop()}; //prevent optimization
         }
         rprintln!("Leaving low prio task.");
     }
