@@ -2,10 +2,12 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 
+use core::panic::PanicInfo;
+
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR0])]
 mod app {
-    use panic_rtt_target as _;
     use rtt_target::{rprintln, rtt_init_print};
+    use esp32c3_hal as _;
 
     #[shared]
     struct Shared {}
@@ -25,4 +27,9 @@ mod app {
     async fn foo(_: foo::Context) {
         rprintln!("foo");
     }
+}
+
+#[panic_handler]
+fn panic(_:&PanicInfo)->!{
+    loop{}
 }

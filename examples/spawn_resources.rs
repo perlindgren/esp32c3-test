@@ -1,13 +1,13 @@
-//! examples/spawn.rs
-
 #![no_main]
 #![no_std]
 #![feature(type_alias_impl_trait)]
 
+use core::panic::PanicInfo;
+
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR1, FROM_CPU_INTR2, FROM_CPU_INTR0])]
 mod app {
-    use panic_rtt_target as _;
     use rtt_target::{rprintln, rtt_init_print};
+    use esp32c3_hal as _;
 
     #[shared]
     struct Shared {
@@ -45,4 +45,9 @@ mod app {
     async fn baz(_: baz::Context) {
         rprintln!("baz");
     }
+}
+
+#[panic_handler]
+fn panic(_:&PanicInfo)->!{
+    loop{}
 }

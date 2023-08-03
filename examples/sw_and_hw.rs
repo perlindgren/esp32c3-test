@@ -2,6 +2,8 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 
+use core::panic::PanicInfo;
+
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR0, FROM_CPU_INTR1])]
 mod app {
 
@@ -10,7 +12,6 @@ mod app {
         peripherals::Peripherals,
         prelude::*,
     };
-    use panic_rtt_target as _;
 
     use rtt_target::{rprintln, rtt_init_print};
 
@@ -49,6 +50,7 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
+            unsafe{esp32c3_hal::riscv::asm::nop();}
         }
         rprintln!("Leaving high prio task.");
     }
@@ -58,6 +60,7 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
+            unsafe{esp32c3_hal::riscv::asm::nop();}
         }
         rprintln!("Leaving low prio task.");
     }
@@ -67,4 +70,9 @@ mod app {
         cx.local.button.clear_interrupt();
         rprintln!("button");
     }
+}
+
+#[panic_handler]
+fn panic(_:&PanicInfo)->!{
+    loop{}
 }
