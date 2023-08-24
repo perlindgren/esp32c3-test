@@ -22,6 +22,7 @@ static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefC
 unsafe fn main() -> ! {
     rtt_init_print!();
     rprintln!("init");
+    rprintln!("{}", priority_handler_1);
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let sw_int = system.software_interrupt_control;
@@ -42,7 +43,7 @@ unsafe fn main() -> ! {
     unsafe {
         asm!(
             "
-            csrrwi x0, 0x7e0, 2 #what to count, for cycles write 1 for instructions write 2
+            csrrwi x0, 0x7e0, 1 #what to count, for cycles write 1 for instructions write 2
             csrrwi x0, 0x7e1, 0 #disable counter
             csrrwi x0, 0x7e2, 0 #reset counter
             "
@@ -51,41 +52,61 @@ unsafe fn main() -> ! {
     unsafe {
         asm!(
             "
-            li t0, 0x600C002C #FROM_CPU_INTR0 address 2C, 30, 34
+            li t0, 0x600C002C #FROM_CPU_INTR1 address 2C, 30, 34
             li t1, 1    #set flag
-            csrrwi x0, 0x7e1, 1 #enable timer
-            sw t1, 0(t0) #raise FROM_CPU_INTR0
+            #csrrwi x0, 0x7e1, 1 #enable timer
+            sw t1, 0(t0) #raise FROM_CPU_INTR1
             "
         )
     }
     rprintln!("CNT:{} Returned", unsafe{CNT});
     loop {}
 }
-static mut CNT:u32 = 0;
+#[no_mangle]
+static priority_handler_1:&u32 = &1;
+#[no_mangle]
+static priority_handler_2:&u32 = &2;
+
+
+static mut CNT: u32 = 0;
 #[no_mangle]
 #[link_section = ".trap"]
-unsafe extern "riscv-interrupt-m" fn cpu_int_1_handler() {
-    CNT += 1;
+unsafe extern "C" fn cpu_int_1_handler() {
     rprintln!("lowprio entry");
-    let peripherals = unsafe{Peripherals::steal()};
-    let mut sw_int = peripherals.SYSTEM.split().software_interrupt_control;
-    sw_int.reset(SoftwareInterrupt::SoftwareInterrupt1);
-    sw_int.raise(SoftwareInterrupt::SoftwareInterrupt2);
+    asm!(
+        "
+        li t0, 0x600C0030 #FROM_CPU_INTR2 address 2C, 30, 34
+        li t1, 1    #set flag
+        #csrrwi x0, 0x7e1, 1 #enable timer
+        sw t1, 0(t0) #raise FROM_CPU_INTR2
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        #csrrwi x0, 0x7e1, 0 #disable timer
+        "
+    );
+    rprintln!("Critical section:{}", fetch_performance_timer());
+    Peripherals::steal().SYSTEM.split().software_interrupt_control.reset(SoftwareInterrupt::SoftwareInterrupt1);
     rprintln!("lowprio exit");
-    //CNT += 3;
+
 }
 #[no_mangle]
 #[link_section = ".trap"]
-unsafe extern "riscv-interrupt-m" fn cpu_int_2_handler() {
-    //CNT +=2;
+unsafe extern "C" fn cpu_int_2_handler() {
     rprintln!("highprio entry");
     asm!(
         "
-            li t0, 0x600C0030 #FROM_CPU_INTR2 address 2C, 30, 34
-            li t1, 0    #clear
-            sw t1, 0(t0) #clear FROM_CPU_INTR2
+            lui t0, 0x600C0 #FROM_CPU_INTR2 address 2C, 30, 34
+            addi t0, t0, 0x030
+            sw zero, 0(t0) #clear FROM_CPU_INTR2
         "
-        );
+    );
+    rprintln!("highprio exit");
 }
 #[panic_handler]
 fn panic(_: &PanicInfo) -> ! {
