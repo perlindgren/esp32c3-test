@@ -2,7 +2,16 @@
 #![no_std]
 #![feature(naked_functions)]
 #![feature(abi_riscv_interrupt)]
-use core::{arch::asm, cell::RefCell, panic::PanicInfo};
+use core::{arch::{asm, global_asm}, cell::RefCell, panic::PanicInfo};
+
+//these symbol definitions can be generated via a macro
+//in something like RTIC
+global_asm!("
+.global priority_handler_1
+.global priority_handler_2
+.equ priority_handler_1, 2
+.equ priority_handler_2, 3
+");
 
 use critical_section::Mutex;
 use esp32c3::INTERRUPT_CORE0;
@@ -22,7 +31,6 @@ static SWINT: Mutex<RefCell<Option<SoftwareInterruptControl>>> = Mutex::new(RefC
 unsafe fn main() -> ! {
     rtt_init_print!();
     rprintln!("init");
-    rprintln!("{}", priority_handler_1);
     let peripherals = Peripherals::take();
     let system = peripherals.SYSTEM.split();
     let sw_int = system.software_interrupt_control;
@@ -43,7 +51,7 @@ unsafe fn main() -> ! {
     unsafe {
         asm!(
             "
-            csrrwi x0, 0x7e0, 1 #what to count, for cycles write 1 for instructions write 2
+            csrrwi x0, 0x7e0, 2 #what to count, for cycles write 1 for instructions write 2
             csrrwi x0, 0x7e1, 0 #disable counter
             csrrwi x0, 0x7e2, 0 #reset counter
             "
@@ -62,10 +70,10 @@ unsafe fn main() -> ! {
     rprintln!("CNT:{} Returned", unsafe{CNT});
     loop {}
 }
-#[no_mangle]
-static priority_handler_1:&u32 = &1;
-#[no_mangle]
-static priority_handler_2:&u32 = &2;
+// extern "C"{
+//     static priority_handler_1:usize;
+//     static priority_handler_2:usize;
+// }
 
 
 static mut CNT: u32 = 0;

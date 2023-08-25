@@ -9,6 +9,7 @@ edition = "2021"
 cfg-if = "1.0.0"
 esp32c3 = { git = "https://github.com/esp-rs/esp-pacs", rev = "ce6d5b5"}
 esp32c3-hal = { git = "https://github.com/onsdagens/esp-hal/", branch = "call_conv", features = ["direct-boot", "direct-vectoring"] }
+#esp32c3-hal = {path = "../esp-hal/esp32c3-hal/", features = ["direct-boot", "direct-vectoring"] }
 rtt-target = { version = "0.3.1", features=["riscv"]}
 #rtic = {path = '../rtic/rtic', features = ["riscv-esp32c3-backend"]}
 
