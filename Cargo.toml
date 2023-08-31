@@ -15,7 +15,6 @@ rtt-target = { version = "0.4.0" }
 layout-derive = { git = "https://github.com/perlindgren/layout-derive" }
 layout-trait = { git = "https://github.com/perlindgren/layout-trait" }
 heapless = "0.7.16"
-psm = "0.1.21"
 
 [profile.release]
 incremental = false
