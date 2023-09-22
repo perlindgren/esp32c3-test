@@ -1,19 +1,20 @@
 {
-    "cSpell.ignoreWords": [
-        "CNTL",
-        "GPIO",
-        "SWINT",
-        "TIMG",
-        "blinky",
-        "clockctrl",
-        "espflash",
-        "imac",
-        "intctl",
-        "println",
-        "riscv",
-        "rprintln",
-        "rustup",
-        "rwdt",
-        "usart"
-    ]
+  "cSpell.ignoreWords": [
+    "CNTL",
+    "GPIO",
+    "SWINT",
+    "TIMG",
+    "Uart",
+    "blinky",
+    "clockctrl",
+    "espflash",
+    "imac",
+    "intctl",
+    "println",
+    "riscv",
+    "rprintln",
+    "rustup",
+    "rwdt",
+    "usart"
+  ]
 }

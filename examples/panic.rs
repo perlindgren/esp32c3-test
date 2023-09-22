@@ -1,6 +1,8 @@
 //! Blinks an LED
 //!
-//! This assumes that a LED is connected to the pin assigned to `led`. (GPIO7 for the ESP32c3-RUST DK)
+//! Run on target:
+//!
+//! cargo embed --example panic
 
 #![no_std]
 #![no_main]

@@ -1,6 +1,8 @@
 //! Blinks an LED
 //!
 //! This assumes that a LED is connected to the pin assigned to `led`. (GPIO7 for the ESP32c3-RUST DK)
+//!
+//!
 
 #![no_std]
 #![no_main]
@@ -44,13 +46,15 @@ fn main() -> ! {
 
     led.set_high().unwrap();
 
-    // Initialize the Delay peripheral, and use it to toggle the LED state in a
-    // loop.
+    // Initialize the Delay peripheral, and use it to toggle the LED state in a loop.
     let mut delay = Delay::new(&clocks);
 
+    let mut i = 0;
+
     loop {
-        rprintln!("blink");
-        writeln!(uart0, "blink").unwrap();
+        i = (i + 1) % 10;
+        rprintln!("blink {}", i);
+        writeln!(uart0, "blink {}", i).unwrap();
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);

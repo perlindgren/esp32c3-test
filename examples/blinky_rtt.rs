@@ -1,6 +1,11 @@
 //! Blinks an LED
 //!
 //! This assumes that a LED is connected to the pin assigned to `led`. (GPIO7 for the ESP32c3-RUST DK)
+//!
+//! Run on target:
+//!
+//! cargo embed --example blinky_rtt
+//!
 
 #![no_std]
 #![no_main]
@@ -46,7 +51,7 @@ fn main() -> ! {
     let mut delay = Delay::new(&clocks);
 
     loop {
-        rprintln!("Hello world");
+        rprintln!("blink");
 
         led.toggle().unwrap();
         delay.delay_ms(500u32);
