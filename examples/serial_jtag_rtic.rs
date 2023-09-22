@@ -15,7 +15,7 @@ mod app {
         UsbSerialJtag,
     };
     use nb::block;
-    use rtt_target::{rprintln, rtt_init_print};
+    use rtt_target::{rprint, rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {
@@ -65,11 +65,12 @@ mod app {
 
     #[task(binds = USB_DEVICE, priority=1, shared=[usb_serial])]
     fn foo(mut cx: foo::Context) {
-        rprintln!("UART interrupt");
+        rprint!("Received: ");
         cx.shared.usb_serial.lock(|usb_serial| {
             writeln!(usb_serial, "USB serial interrupt").unwrap();
             while let nb::Result::Ok(c) = usb_serial.read_byte() {
                 writeln!(usb_serial, "Read byte: {:02x}", c).unwrap();
+                rprint!("{}", c as char);
             }
             usb_serial.reset_rx_packet_recv_interrupt();
         });
