@@ -6,11 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+critical-section   = "1.1.1"
 cfg-if = "1.0.0"
 esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
 rtt-target = { version = "0.3.1", features=["riscv"]}
 rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"]}
-esp32c3 = "0.17.0"
+esp32c3 = {version="0.17.0",features=["critical-section"]}
 
 [profile.release]
 incremental = false
