@@ -7,10 +7,10 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
-esp32c3 = { git = "https://github.com/esp-rs/esp-pacs", rev = "ce6d5b5"}
 esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
 rtt-target = { version = "0.3.1", features=["riscv"]}
 rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"]}
+esp32c3 = "0.17.0"
 
 [profile.release]
 incremental = false
@@ -19,5 +19,4 @@ debug = true        # symbols are nice and they don't increase the size on Flash
 opt-level = 3
 
 [patch.crates-io]
-#panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch='panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/onsdagens/rtt-target' }
