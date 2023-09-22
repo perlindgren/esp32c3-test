@@ -69,7 +69,7 @@ fn main() -> ! {
     timer0.start(10u64.millis());
 
     rprintln!("Start");
-    let mut i: u8 = 0;
+    let mut i: u8;
     loop {
         i = 0b0000_1111;
         rprintln!("write {:#010b}", i);
