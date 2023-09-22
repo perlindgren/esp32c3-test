@@ -82,6 +82,7 @@ fn main() -> ! {
 
 #[interrupt]
 fn USB_DEVICE() {
+    rprintln!("interrupt");
     critical_section::with(|cs| {
         let mut usb_serial = USB_SERIAL.borrow_ref_mut(cs);
         let usb_serial = usb_serial.as_mut().unwrap();
