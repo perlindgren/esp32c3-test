@@ -6,17 +6,16 @@ use core::panic::PanicInfo;
 
 #[rtic::app(device = esp32c3)]
 mod app {
-    use rtt_target::{rprintln, rtt_init_print};
+    use core::fmt::Write;
     use esp32c3_hal::{
         clock::ClockControl,
         peripherals::{Peripherals, TIMG0},
         prelude::*,
-        timer::{TimerGroup, Timer, Timer0},
+        timer::{Timer, Timer0, TimerGroup},
         UsbSerialJtag,
     };
     use nb::block;
-    use core::fmt::Write;
-
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {
@@ -50,15 +49,15 @@ mod app {
         usb_serial.listen_rx_packet_recv_interrupt();
 
         timer0.start(1u64.secs());
-        
-        (Shared {usb_serial}, Local {timer0})
+
+        (Shared { usb_serial }, Local { timer0 })
     }
 
     #[idle(local = [timer0], shared = [usb_serial])]
-    fn idle(mut cx: idle::Context)->! {
+    fn idle(mut cx: idle::Context) -> ! {
         loop {
-            cx.shared.usb_serial.lock(|usb_serial|{
-                writeln!(usb_serial,"Hello to host!").unwrap();
+            cx.shared.usb_serial.lock(|usb_serial| {
+                writeln!(usb_serial, "Hello to host!").unwrap();
             });
             block!(cx.local.timer0.wait()).unwrap();
         }
@@ -67,7 +66,7 @@ mod app {
     #[task(binds = USB_DEVICE, priority=1, shared=[usb_serial])]
     fn foo(mut cx: foo::Context) {
         rprintln!("UART interrupt");
-        cx.shared.usb_serial.lock(|usb_serial|{
+        cx.shared.usb_serial.lock(|usb_serial| {
             writeln!(usb_serial, "USB serial interrupt").unwrap();
             while let nb::Result::Ok(c) = usb_serial.read_byte() {
                 writeln!(usb_serial, "Read byte: {:02x}", c).unwrap();
@@ -78,6 +77,6 @@ mod app {
 }
 
 #[panic_handler]
-fn panic(_:&PanicInfo)->!{
-    loop{}
+fn panic(_: &PanicInfo) -> ! {
+    loop {}
 }
