@@ -7,9 +7,9 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
-esp-hal-common = { version = "0.7.0", features = ["esp32c3", "vectored"] }
-esp32c3 = "0.12.0"
-esp32c3-hal = { version = "0.7.0", features = ["rt", "direct-boot"] }
+esp-hal-common = { version = "0.12.0", features = ["esp32c3", "vectored"] }
+esp32c3 = "0.17.0"
+esp32c3-hal = { version = "0.12.0", features = ["rt", "direct-boot"] }
 critical-section = "1.1.1"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
@@ -24,5 +24,5 @@ opt-level = "s"
 [patch.crates-io]
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
-esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/' }
-esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/' }
+# esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/' }
+# esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/' }
