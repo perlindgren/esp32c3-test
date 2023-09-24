@@ -1,8 +1,8 @@
-//! uart_echo
+//! uart_echo_interrupt
 //!
 //! Run on target:
 //!
-//! cargo embed --example uart_echo
+//! cargo embed --example uart_echo_interrupt
 //!
 //! Run on host:
 //!
@@ -12,7 +12,8 @@
 //!
 //! moserial -p moserial_acm1.cfg
 //!
-//! Echoes incoming data + 1 (a->b, etc.)
+//! Echoes incoming data + 1 (a->b, etc.).
+//! Target sends `.` each 500ms.
 //!
 //! This assumes we have usb<->serial adepter appearing as /dev/ACM1
 //! - Target TX = GPIO0, connect to RX on adapter
@@ -36,7 +37,6 @@ use esp32c3_hal::{
     },
     Cpu, Delay, Uart, IO,
 };
-use nb::block;
 
 use rtt_target::{rprintln, rtt_init_print};
 
@@ -75,6 +75,9 @@ fn main() -> ! {
         &mut system.peripheral_clock_control,
     );
 
+    uart0.set_rx_fifo_full_threshold(1).unwrap();
+    uart0.listen_rx_fifo_full();
+
     critical_section::with(|cs| SERIAL_MUTEX.borrow_ref_mut(cs).replace(uart0));
 
     interrupt::enable(
@@ -94,48 +97,28 @@ fn main() -> ! {
     rprintln!("Start");
 
     loop {
+        rprintln!("ping");
         critical_section::with(|cs| {
             let mut uart0 = SERIAL_MUTEX.borrow_ref_mut(cs);
             let uart0 = uart0.as_mut().unwrap();
-            uart0.write(b'a').unwrap();
+            uart0.write(b'.').unwrap();
         });
         delay.delay_ms(500u32);
-        // match block!(serial1.read()) {
-        //     Ok(read) => {
-        //         rprintln!("Read 0x{:02x}", read);
-
-        //         match block!(serial1.write(read + 1)) {
-        //             Ok(()) => {}
-        //             Err(err) => rprintln!("Write error: {:?}", err),
-        //         }
-        //     }
-        //     Err(err) => rprintln!("Error {:?}", err),
-        // }
     }
 }
 
 #[interrupt]
 fn UART0() {
     rprintln!("interrupt");
-    // critical_section::with(|cs| {
-    //     let mut serial = SERIAL.borrow_ref_mut(cs);
-    //     let serial = serial.as_mut().unwrap();
+    critical_section::with(|cs| {
+        let mut uart0 = SERIAL_MUTEX.borrow_ref_mut(cs);
+        let uart0 = uart0.as_mut().unwrap();
 
-    //     let mut cnt = 0;
-    //     while let nb::Result::Ok(_c) = serial.read() {
-    //         cnt += 1;
-    //     }
-    //     writeln!(serial, "Read {} bytes", cnt,).ok();
+        while let nb::Result::Ok(data) = uart0.read() {
+            rprintln!("read {}", data);
+            uart0.write(data + 1).unwrap();
+        }
 
-    //     writeln!(
-    //         serial,
-    //         "Interrupt AT-CMD: {} RX-FIFO-FULL: {}",
-    //         serial.at_cmd_interrupt_set(),
-    //         serial.rx_fifo_full_interrupt_set(),
-    //     )
-    //     .ok();
-
-    //     serial.reset_at_cmd_interrupt();
-    //     serial.reset_rx_fifo_full_interrupt();
-    // });
+        uart0.reset_rx_fifo_full_interrupt();
+    });
 }
