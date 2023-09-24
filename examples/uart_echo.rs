@@ -9,15 +9,14 @@ mod app {
     use core::fmt::Write;
     use esp32c3_hal::{
         clock::ClockControl,
-        interrupt,
-        peripherals::{self, Peripherals, TIMG0, UART0},
+        peripherals::{Peripherals, TIMG0, UART0},
         prelude::*,
         timer::{Timer, Timer0, TimerGroup},
         uart::{
             config::{Config, DataBits, Parity, StopBits},
             TxRxPins,
         },
-        Cpu, Delay, Uart, UsbSerialJtag, IO,
+        Uart, IO,
     };
     use nb::block;
     use rtt_target::{rprint, rprintln, rtt_init_print};
