@@ -1,7 +1,22 @@
+//! usb_serial_jtag
+//!
+//! Run on target:
+//!
+//! cargo embed --example usb_serial_jtag
+//!
+//! Run on host:
+//!
+//! minicom -b 115200 -D /dev/ttyACM0
+//!
+//! or
+//!
+//! moserial -p moserial_usb_serial_jtag.cfg
+//!
 //! This shows how to output text via USB Serial/JTAG.
 //! You need to connect via the Serial/JTAG interface to see any output.
-//! Most dev-kits use a USB-UART-bridge - in that case you won't see any output.
+//!
 //! This will work with the ESP32-C3-DevKit-RUST-1
+//!
 
 #![no_std]
 #![no_main]
@@ -33,7 +48,7 @@ fn main() -> ! {
 
     let peripherals = Peripherals::take();
     let mut system = peripherals.SYSTEM.split();
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let clocks = ClockControl::max(system.clock_control).freeze();
 
     let timer_group0 = TimerGroup::new(
         peripherals.TIMG0,
