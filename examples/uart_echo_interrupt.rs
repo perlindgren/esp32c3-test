@@ -75,6 +75,7 @@ fn main() -> ! {
         &mut system.peripheral_clock_control,
     );
 
+    // TODO,
     uart0.set_rx_fifo_full_threshold(1).unwrap();
     uart0.listen_rx_fifo_full();
 
