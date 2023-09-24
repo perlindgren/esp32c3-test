@@ -16,8 +16,7 @@ use esp32c3_hal::{
     prelude::*,
     riscv,
     system::{SoftwareInterrupt, SoftwareInterruptControl},
-    timer::TimerGroup,
-    Delay, Rtc,
+    Delay,
 };
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
@@ -31,20 +30,7 @@ fn main() -> ! {
     let system = peripherals.SYSTEM.split();
     let clockctrl = system.clock_control;
     let sw_int = system.software_interrupt_control;
-    let clocks = ClockControl::boot_defaults(clockctrl).freeze();
-
-    // Disable the watchdog timers. For the ESP32-C3, this includes the Super WDT,
-    // the RTC WDT, and the TIMG WDTs.
-    let mut rtc = Rtc::new(peripherals.RTC_CNTL);
-    let timer_group0 = TimerGroup::new(peripherals.TIMG0, &clocks);
-    let mut wdt0 = timer_group0.wdt;
-    let timer_group1 = TimerGroup::new(peripherals.TIMG1, &clocks);
-    let mut wdt1 = timer_group1.wdt;
-
-    rtc.swd.disable();
-    rtc.rwdt.disable();
-    wdt0.disable();
-    wdt1.disable();
+    let clocks = ClockControl::max(clockctrl).freeze();
 
     critical_section::with(|cs| SWINT.borrow_ref_mut(cs).replace(sw_int));
 

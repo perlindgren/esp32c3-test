@@ -62,7 +62,7 @@ fn main() -> ! {
     );
 
     let mut serial1 = Uart::new_with_config(
-        peripherals.UART1,
+        peripherals.UART0,
         config,
         Some(pins),
         &clocks,
