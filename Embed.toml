@@ -1,10 +1,10 @@
 [default.probe]
 # USB vendor ID
 # Uncomment if using multiple J-Link probes
-# usb_vid = "1366"
+usb_vid = "303a"
 # # USB product ID
 # # Uncomment if using multiple J-Link probes
-# usb_pid = "1051"
+usb_pid = "1001"
 # # Serial number, fill in your own if using multiple probes
 # serial = "001050230903"
 # The protocol to be used for communicating with the target.
