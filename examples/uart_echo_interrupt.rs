@@ -75,7 +75,8 @@ fn main() -> ! {
         &mut system.peripheral_clock_control,
     );
 
-    // TODO,
+    // This is stupid!
+    // TODO, can we have interrupts after timeout even if threshold > 1?
     uart0.set_rx_fifo_full_threshold(1).unwrap();
     uart0.listen_rx_fifo_full();
 
@@ -110,13 +111,13 @@ fn main() -> ! {
 
 #[interrupt]
 fn UART0() {
-    rprintln!("interrupt");
+    rprintln!("UART0 interrupt");
     critical_section::with(|cs| {
         let mut uart0 = SERIAL_MUTEX.borrow_ref_mut(cs);
         let uart0 = uart0.as_mut().unwrap();
 
         while let nb::Result::Ok(data) = uart0.read() {
-            rprintln!("read {}", data);
+            rprintln!("Read 0x{:02x}", data);
             uart0.write(data + 1).unwrap();
         }
 

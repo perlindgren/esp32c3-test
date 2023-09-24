@@ -61,7 +61,7 @@ fn main() -> ! {
         io.pins.gpio1.into_floating_input(),
     );
 
-    let mut serial1 = Uart::new_with_config(
+    let mut uart0 = Uart::new_with_config(
         peripherals.UART0,
         config,
         Some(pins),
@@ -72,11 +72,11 @@ fn main() -> ! {
     rprintln!("Start");
 
     loop {
-        match block!(serial1.read()) {
-            Ok(read) => {
-                rprintln!("Read 0x{:02x}", read);
+        match block!(uart0.read()) {
+            Ok(data) => {
+                rprintln!("Read 0x{:02x}", data);
 
-                match block!(serial1.write(read + 1)) {
+                match block!(uart0.write(data + 1)) {
                     Ok(()) => {}
                     Err(err) => rprintln!("Write error: {:?}", err),
                 }
