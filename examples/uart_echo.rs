@@ -1,13 +1,22 @@
 //! uart_echo
 //!
-//! Echoes incoming data + 1 (a->b, etc.)
-//! The following wiring is assumed:
-//! - TX => GPIO0
-//! - RX => GPIO1
-//!
 //! Run on target:
 //!
 //! cargo embed --example uart_echo
+//!
+//! Run on host:
+//!
+//! minicom -b 115200 -D /dev/ttyACM1
+//!
+//! or
+//!
+//! moserial -p moserial_acm1.cfg
+//!
+//! Echoes incoming data + 1 (a->b, etc.)
+//!
+//! This assumes we have usb<->serial adepter appearing as /dev/ACM1
+//! - Target TX = GPIO0, connect to RX on adapter
+//! - Target RX = GPIO1, connect to TX on adapter
 //!
 
 #![no_std]
@@ -63,12 +72,14 @@ fn main() -> ! {
     rprintln!("Start");
 
     loop {
-        let read = block!(serial1.read());
-
-        match read {
+        match block!(serial1.read()) {
             Ok(read) => {
                 rprintln!("Read 0x{:02x}", read);
-                serial1.write(read + 1).ok();
+
+                match block!(serial1.write(read + 1)) {
+                    Ok(()) => {}
+                    Err(err) => rprintln!("Write error: {:?}", err),
+                }
             }
             Err(err) => rprintln!("Error {:?}", err),
         }
