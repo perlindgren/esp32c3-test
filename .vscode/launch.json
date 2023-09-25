@@ -16,7 +16,7 @@
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,
-                "haltAfterReset": false,
+                "haltAfterReset": true,
             },
             "coreConfigs": [
                 {
@@ -38,7 +38,7 @@
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,
-                "haltAfterReset": false
+                "haltAfterReset": true
             },
             "coreConfigs": [
                 {

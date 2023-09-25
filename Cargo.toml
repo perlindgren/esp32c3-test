@@ -11,7 +11,8 @@ cfg-if = "1.0.0"
 esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
 rtt-target = { version = "0.3.1", features=["riscv"]}
 rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"]}
-rtic-monotonics = {git = "https://github.com/onsdagens/rtic", branch="monotonic2"}
+rtic-monotonics = {path = "../rtic/rtic-monotonics/"}
+#rtic-monotonics = {git = "https://github.com/onsdagens/rtic", branch="monotonic2"}
 esp32c3 = {version="0.17.0",features=["critical-section"]}
 
 [profile.release]

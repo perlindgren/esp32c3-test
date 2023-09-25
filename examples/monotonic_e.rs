@@ -7,7 +7,6 @@
 use core::prelude::rust_2021::*;
 #[macro_use]
 extern crate core;
-extern crate compiler_builtins as _;
 use core::panic::PanicInfo;
 /// The RTIC application module
 pub mod app {
