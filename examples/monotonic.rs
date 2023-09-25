@@ -7,9 +7,9 @@
 use core::panic::PanicInfo;
 #[rtic::app(device = esp32c3, dispatchers = [FROM_CPU_INTR0, FROM_CPU_INTR1])]
 mod app {
-    use rtt_target::{rtt_init_print, rprintln};
-    use rtic_monotonics::{self,esp32c3::ExtU32};
-    use esp32c3_hal::peripherals::Peripherals;
+    use esp32c3_hal as _;
+    use rtic_monotonics::{self, esp32c3::ExtU32};
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {}
@@ -32,25 +32,24 @@ mod app {
         (Shared {}, Local {})
     }
 
-
     #[task(priority = 2)]
     async fn foo(_cx: foo::Context) {
         rprintln!("hello from foo");
-        rtic_monotonics::esp32c3::Systick::delay(100.millis()).await;
+        rtic_monotonics::esp32c3::Systick::delay(10.secs()).await;
         rprintln!("bye from foo");
     }
 
     #[task(priority = 1)]
     async fn bar(_cx: bar::Context) {
         rprintln!("hello from bar");
-        rtic_monotonics::esp32c3::Systick::delay(200.millis()).await;
+        rtic_monotonics::esp32c3::Systick::delay(5.secs()).await;
         rprintln!("bye from bar");
     }
 
     #[task(priority = 1)]
     async fn baz(_cx: baz::Context) {
         rprintln!("hello from baz");
-        rtic_monotonics::esp32c3::Systick::delay(300.millis()).await;
+        rtic_monotonics::esp32c3::Systick::delay(15.secs()).await;
         rprintln!("bye from baz");
     }
 }
