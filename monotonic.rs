@@ -106,7 +106,6 @@ pub mod app {
             #[allow(non_snake_case)]
             unsafe extern "C" fn SysTick() {
                 use esp32c3::Peripherals;
-                ::rtt_target::print_impl::write_str(0, "Systick\n");
                 rtic_monotonics::esp32c3::Systick::__tq().on_monotonic_interrupt();
             }
             pub struct SystickToken;
@@ -316,8 +315,6 @@ pub mod app {
         rtic::export::interrupt::disable();
         let mut core: rtic::export::Peripherals = rtic::export::Peripherals::steal()
             .into();
-        let _ = you_must_enable_the_rt_feature_for_the_pac_in_your_cargo_toml::Interrupt::FROM_CPU_INTR0;
-        let _ = you_must_enable_the_rt_feature_for_the_pac_in_your_cargo_toml::Interrupt::FROM_CPU_INTR1;
         #[inline(never)]
         fn __rtic_init_resources<F>(f: F)
         where

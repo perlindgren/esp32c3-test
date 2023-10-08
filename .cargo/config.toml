@@ -1,4 +1,4 @@
-[target.riscv32imac-unknown-none-elf]
+[target.riscv32imc-unknown-none-elf]
 runner = "espflash --format direct-boot --monitor"
 rustflags = [
 "-C",
@@ -6,4 +6,4 @@ rustflags = [
 ]
 
 [build]
-target = "riscv32imac-unknown-none-elf"
+target = "riscv32imc-unknown-none-elf"
