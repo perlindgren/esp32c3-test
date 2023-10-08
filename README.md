@@ -13,10 +13,10 @@ Playground for experimentation with the esp32c3-rust board.
 
 ## Setup
 
-`cargo-embed` is required for flashing. We use the `imac` target for rtt-target support. Atomics are emulated via the RT crate.
+`cargo-embed` is required for flashing. We use the `imc` target.
 
 ```shell
-rustup target add riscv32imac-unknown-none-elf
+rustup target add riscv32imc-unknown-none-elf
 cargo install cargo-embed
 ```
 
