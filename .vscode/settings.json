@@ -3,13 +3,17 @@
         "CNTL",
         "GPIO",
         "blinky",
+        "codgen",
         "espflash",
         "imac",
+        "monotonics",
         "println",
         "riscv",
         "rprintln",
+        "rtic",
         "rustup",
         "rwdt",
+        "systimer",
         "usart"
     ]
 }

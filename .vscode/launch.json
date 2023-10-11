@@ -16,7 +16,7 @@
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,
-                "haltAfterReset": true,
+                "haltAfterReset": false,
             },
             "coreConfigs": [
                 {
@@ -38,15 +38,15 @@
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,
-                "haltAfterReset": true
+                "haltAfterReset": false
             },
             "coreConfigs": [
                 {
                     "coreIndex": 0,
                     "programBinary": "./target/riscv32imc-unknown-none-elf/release/examples/${fileBasenameNoExtension}",
                     "rttEnabled": true,
-            }
-        ]
-    }
-]
+                }
+            ]
+        }
+    ]
 }

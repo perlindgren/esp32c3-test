@@ -6,20 +6,34 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-critical-section   = "1.1.1"
+critical-section = "1.1.1"
 cfg-if = "1.0.0"
-esp32c3-hal = { version = "0.12.0", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
+esp32c3-hal = { version = "0.12.0", features = [
+    "direct-boot",
+    "interrupt-preemption",
+    "direct-vectoring",
+] }
 rtt-target = { version = "0.4.0" }
 panic-rtt-target = "0.1.2"
-rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"]}
-rtic-monotonics = {git = "https://github.com/onsdagens/rtic", branch="monotonic", features = ["esp32c3-systimer"]}
-esp32c3 = {version="0.17.0",features=["critical-section"]}
+rtic = { git = 'https://github.com/onsdagens/rtic', features = [
+    "riscv-esp32c3-backend",
+] }
+rtic-monotonics = { git = "https://github.com/onsdagens/rtic", branch = "monotonic", features = [
+    "esp32c3-systimer",
+] }
+esp32c3 = { version = "0.17.0", features = ["critical-section"] }
+
+lab4 = { git = "https://vesuvio-git.neteq.ltu.se/pln/rust_decode" }
 
 [profile.release]
 incremental = false
 codegen-units = 1   # better optimizations
 debug = true        # symbols are nice and they don't increase the size on Flash
 opt-level = 3
+
+[profile.dev]
+overflow-checks = false
+
 
 [patch.crates-io]
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
