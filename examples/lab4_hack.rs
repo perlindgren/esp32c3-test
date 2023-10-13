@@ -75,6 +75,6 @@ mod app {
         rprintln!("hack codgen");
         let _ = codgen();
 
-        rprintln!("seed {}", unsafe { SEED });
+        rprintln!("seed {}", unsafe { SEED }); // comment out to expose potential `static mut` problem
     }
 }
