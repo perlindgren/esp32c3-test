@@ -74,5 +74,7 @@ mod app {
         Systimer::delay(50.millis()).await;
         rprintln!("hack codgen");
         let _ = codgen();
+
+        rprintln!("seed {}", unsafe { SEED });
     }
 }
