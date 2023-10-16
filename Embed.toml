@@ -40,7 +40,7 @@ chip = "esp32c3"
 chip_descriptions = []
 # The default log level to be used. Possible values are one of:
 #   "OFF", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"
-log_level = "WARN"
+log_level = "ERROR"
 # Use this flag to assert the nreset & ntrst pins during attaching the probe to the chip.
 connect_under_reset = false
 

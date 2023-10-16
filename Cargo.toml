@@ -8,19 +8,27 @@ edition = "2021"
 [dependencies]
 critical-section   = "1.1.1"
 cfg-if = "1.0.0"
-esp32c3-hal = { version = "0.12.0", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
+esp32c3-hal = { version = "0.12.0", features = ["interrupt-preemption", "direct-vectoring"]}#"direct-boot",]} #"interrupt-preemption", ]}#"direct-vectoring"] }
 rtt-target = { version = "0.4.0" }
 panic-rtt-target = "0.1.2"
 rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"]}
 rtic-monotonics = {git = "https://github.com/onsdagens/rtic", branch="monotonic", features = ["esp32c3-systimer"]}
 esp32c3 = {version="0.17.0",features=["critical-section"]}
-
+esp-wifi = { git = "https://github.com/onsdagens/esp-wifi", default-features = false, features = ["esp32c3", "utils", "wifi"] }
+heapless = { version = "0.7.16", default-features = false }
+embedded-io = "0.4.0"
+embedded-svc = { version = "0.25.1", default-features = false, features = [] }
+smoltcp = { version = "0.10.0", default-features=false, features = ["proto-igmp", "proto-ipv4", "proto-dns", "socket-tcp", "socket-icmp", "socket-udp", "socket-dns", "medium-ethernet", "proto-dhcpv4", "socket-raw", "socket-dhcpv4"] }
+esp-println = { version = "0.6.0" }
+esp-backtrace = { version = "0.8.0", features = ["panic-handler", "exception-handler", "print-uart", "esp32c3"] }
 [profile.release]
+lto = "off"
 incremental = false
-codegen-units = 1   # better optimizations
+#codegen-units = 1   # better optimizations
 debug = true        # symbols are nice and they don't increase the size on Flash
 opt-level = 3
 
 [patch.crates-io]
+esp-hal-common = {  git = "https://github.com/esp-rs/esp-hal.git", rev = "4c34ebe9e264fcc31fabba862274adae8daa680a" }
 rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
 panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
