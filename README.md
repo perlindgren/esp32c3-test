@@ -13,11 +13,12 @@ Playground for experimentation with the esp32c3-rust board.
 
 ## Setup
 
-`cargo-embed` is required for flashing. We use the `imc` target.
+`probe-rs` is required for flashing. Binaries available [here](https://github.com/probe-rs/probe-rs/releases/tag/v0.21.1)
+
+We use the `imac` target.
 
 ```shell
-rustup target add riscv32imc-unknown-none-elf
-cargo install cargo-embed
+rustup target add riscv32imac-unknown-none-elf
 ```
 
 ---
@@ -26,7 +27,8 @@ cargo install cargo-embed
 
 
 ``` shell
-cargo embed --example spawn_simple
+cargo build --example wifi --release
+probe-rs run --chip esp32c3-idf --format idf ./target/riscv32imac-unknown-none-elf/release/examples/wifi_rtic
 ```
 To run an example.
 
