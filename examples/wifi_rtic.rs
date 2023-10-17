@@ -24,8 +24,10 @@ mod app {
     use smoltcp::wire::IpAddress;
     use smoltcp::wire::Ipv4Address;
 
-    const SSID: &str = "esp_wifi"; //env!("SSID");
+    const SSID: &str = "espwifi"; //env!("SSID");
     const PASSWORD: &str = ""; //env!("PASSWORD");
+    const STATIC_IP: &str = "192.168.2.255";
+        const GATEWAY_IP: &str = "192.168.2.1";
     #[shared]
     struct Shared {}
 
@@ -40,6 +42,7 @@ mod app {
     fn init(_: init::Context) -> (Shared, Local) {
         rtt_init_print!();
         rprintln!("init");
+        rprintln!("{}", SSID);
         let peripherals = Peripherals::take();
 
         let system = peripherals.SYSTEM.split();
@@ -69,24 +72,28 @@ mod app {
         let mut socket_set_entries: [SocketStorage; 3] = Default::default();
         let (iface, device, mut controller, sockets) =
             create_network_interface(&init, wifi, WifiMode::Sta, &mut socket_set_entries).unwrap();
-        let wifi_stack = WifiStack::new(iface, device, sockets, current_millis);
+        let mut wifi_stack = WifiStack::new(iface, device, sockets, current_millis);
 
         let client_config = Configuration::Client(ClientConfiguration {
             ssid: SSID.into(),
             password: PASSWORD.into(),
+            auth_method: embedded_svc::wifi::AuthMethod::None,
             ..Default::default()
         });
         let res = controller.set_configuration(&client_config);
         rprintln!("wifi_set_configuration returned {:?}", res);
+
         controller.start().unwrap();
         rprintln!("is wifi started: {:?}", controller.is_started());
 
         rprintln!("Start Wifi Scan");
-        let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> =
-            controller.scan_n();
+        let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> = controller.scan_n();
         if let Ok((res, _count)) = res {
             for ap in res {
                 rprintln!("{:?}", ap);
+                if ap.ssid == "espwifi"{
+                    rprintln!("here");
+                }
             }
         }
 
@@ -111,23 +118,27 @@ mod app {
         }
         rprintln!("{:?}", controller.is_connected());
 
-        // wait for getting an ip address
-        rprintln!("Wait to get an ip address");
+        rprintln!("Setting static IP {}", STATIC_IP);
 
-        loop {
-            wifi_stack.work();
-
-            if wifi_stack.is_iface_up() {
-                rprintln!("got ip {:?}", wifi_stack.get_ip_info());
-                break;
-            }
-        }
+        wifi_stack
+            .set_iface_configuration(&embedded_svc::ipv4::Configuration::Client(
+                embedded_svc::ipv4::ClientConfiguration::Fixed(embedded_svc::ipv4::ClientSettings {
+                    ip: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(STATIC_IP)),
+                    subnet: embedded_svc::ipv4::Subnet {
+                        gateway: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(GATEWAY_IP)),
+                        mask: embedded_svc::ipv4::Mask(24),
+                    },
+                    dns: None,
+                    secondary_dns: None,
+                }),
+            ))
+            .unwrap();
         let ip_info = wifi_stack.get_ip_info().unwrap();
         let gateway = ip_info.subnet.gateway.octets();
         rprintln!("Start busy loop on main");
 
         let mut rx_buffer = [0u8; 1536];
-        let mut tx_buffer = [0u8; 1536];
+            let mut tx_buffer = [0u8; 1536];
         let mut socket = wifi_stack.get_socket(&mut rx_buffer, &mut tx_buffer);
 
         loop {
@@ -139,7 +150,7 @@ mod app {
                     IpAddress::Ipv4(Ipv4Address::new(
                         gateway[0], gateway[1], gateway[2], gateway[3],
                     )),
-                    80,
+                        8080,
                 )
                 .unwrap();
 
@@ -176,5 +187,12 @@ mod app {
     fn button(cx: button::Context) {
         cx.local.button.clear_interrupt();
         rprintln!("button");
+    }
+    fn parse_ip(ip: &str) -> [u8; 4] {
+        let mut result = [0u8; 4];
+        for (idx, octet) in ip.split(".").into_iter().enumerate() {
+            result[idx] = u8::from_str_radix(octet, 10).unwrap();
+        }
+        result
     }
 }
