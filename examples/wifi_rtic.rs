@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 #![feature(type_alias_impl_trait)]
-
+//vid:303a, pid:1001, Serial: 34:85:18:01:8E:80
 #[rtic::app(device = esp32c3, dispatchers = [])]
 mod app {
     use embedded_io::blocking::*;
@@ -24,8 +24,8 @@ mod app {
     use smoltcp::wire::IpAddress;
     use smoltcp::wire::Ipv4Address;
 
-    const SSID: &str = "iPhone"; //env!("SSID");
-    const PASSWORD: &str = "88888888"; //env!("PASSWORD");
+    const SSID: &str = "esp_wifi"; //env!("SSID");
+    const PASSWORD: &str = ""; //env!("PASSWORD");
     #[shared]
     struct Shared {}
 
@@ -113,6 +113,7 @@ mod app {
 
         // wait for getting an ip address
         rprintln!("Wait to get an ip address");
+
         loop {
             wifi_stack.work();
 
@@ -121,7 +122,8 @@ mod app {
                 break;
             }
         }
-
+        let ip_info = wifi_stack.get_ip_info().unwrap();
+        let gateway = ip_info.subnet.gateway.octets();
         rprintln!("Start busy loop on main");
 
         let mut rx_buffer = [0u8; 1536];
@@ -133,12 +135,15 @@ mod app {
             socket.work();
 
             socket
-                .open(IpAddress::Ipv4(Ipv4Address::new(142, 250, 185, 115)), 80)
+                .open(
+                    IpAddress::Ipv4(Ipv4Address::new(
+                        gateway[0], gateway[1], gateway[2], gateway[3],
+                    )),
+                    80,
+                )
                 .unwrap();
 
-            socket
-                .write(b"GET / HTTP/1.0\r\nHost: www.mobile-j.de\r\n\r\n")
-                .unwrap();
+            socket.write(b"Hello from Client").unwrap();
             socket.flush().unwrap();
 
             let wait_end = current_millis() + 20 * 1000;
