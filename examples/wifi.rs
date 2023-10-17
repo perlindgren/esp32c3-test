@@ -1,7 +1,6 @@
 #![no_std]
 #![no_main]
 
-
 pub const SOC_NAME: &str = "ESP32-C3";
 pub use esp32c3_hal as hal;
 pub type BootButton = crate::hal::gpio::Gpio9<crate::hal::gpio::Input<crate::hal::gpio::PullDown>>;
@@ -10,7 +9,7 @@ use embedded_svc::ipv4::Interface;
 use embedded_svc::wifi::{AccessPointInfo, ClientConfiguration, Configuration, Wifi};
 
 use esp_backtrace as _;
-use rtt_target::{rtt_init_print, rprintln, rprint};
+use rtt_target::{rprint, rprintln, rtt_init_print};
 //use panic_rtt_target as _;
 use esp_println::{print, println};
 use esp_wifi::wifi::utils::create_network_interface;
@@ -24,8 +23,8 @@ use smoltcp::iface::SocketStorage;
 use smoltcp::wire::IpAddress;
 use smoltcp::wire::Ipv4Address;
 
-const SSID: &str = "iPhone";//env!("SSID");
-const PASSWORD: &str = "88888888";//env!("PASSWORD");
+const SSID: &str = "iPhone"; //env!("SSID");
+const PASSWORD: &str = "88888888"; //env!("PASSWORD");
 
 #[entry]
 fn main() -> ! {

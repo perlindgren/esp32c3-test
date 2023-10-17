@@ -7,9 +7,12 @@
 use panic_rtt_target as _;
 #[rtic::app(device = esp32c3, dispatchers = [])]
 mod app {
-    use rtt_target::{rtt_init_print, rprintln};
-    use rtic_monotonics::{self, esp32c3_systimer::{Systimer, ExtU64}};
     use esp32c3_hal as _;
+    use rtic_monotonics::{
+        self,
+        esp32c3_systimer::{ExtU64, Systimer},
+    };
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {}
@@ -31,7 +34,6 @@ mod app {
 
         (Shared {}, Local {})
     }
-
 
     #[task]
     async fn foo(_cx: foo::Context) {
