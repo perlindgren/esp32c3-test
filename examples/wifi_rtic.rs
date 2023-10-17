@@ -26,8 +26,8 @@ mod app {
 
     const SSID: &str = "espwifi"; //env!("SSID");
     const PASSWORD: &str = ""; //env!("PASSWORD");
-    const STATIC_IP: &str = "192.168.2.255";
-        const GATEWAY_IP: &str = "192.168.2.1";
+    const STATIC_IP: &str = "192.168.2.100";
+    const GATEWAY_IP: &str = "192.168.2.1";
     #[shared]
     struct Shared {}
 
@@ -87,11 +87,12 @@ mod app {
         rprintln!("is wifi started: {:?}", controller.is_started());
 
         rprintln!("Start Wifi Scan");
-        let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> = controller.scan_n();
+        let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> =
+            controller.scan_n();
         if let Ok((res, _count)) = res {
             for ap in res {
                 rprintln!("{:?}", ap);
-                if ap.ssid == "espwifi"{
+                if ap.ssid == "espwifi" {
                     rprintln!("here");
                 }
             }
@@ -122,36 +123,41 @@ mod app {
 
         wifi_stack
             .set_iface_configuration(&embedded_svc::ipv4::Configuration::Client(
-                embedded_svc::ipv4::ClientConfiguration::Fixed(embedded_svc::ipv4::ClientSettings {
-                    ip: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(STATIC_IP)),
-                    subnet: embedded_svc::ipv4::Subnet {
-                        gateway: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(GATEWAY_IP)),
-                        mask: embedded_svc::ipv4::Mask(24),
+                embedded_svc::ipv4::ClientConfiguration::Fixed(
+                    embedded_svc::ipv4::ClientSettings {
+                        ip: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(STATIC_IP)),
+                        subnet: embedded_svc::ipv4::Subnet {
+                            gateway: embedded_svc::ipv4::Ipv4Addr::from(parse_ip(GATEWAY_IP)),
+                            mask: embedded_svc::ipv4::Mask(24),
+                        },
+                        dns: None,
+                        secondary_dns: None,
                     },
-                    dns: None,
-                    secondary_dns: None,
-                }),
+                ),
             ))
             .unwrap();
-        let ip_info = wifi_stack.get_ip_info().unwrap();
-        let gateway = ip_info.subnet.gateway.octets();
+        /* rprintln!("Wait to get an ip address");
+        loop{
+            wifi_stack.work();
+            if wifi_stack.is_iface_up(){
+                rprintln!("got ip {:?}", wifi_stack.get_ip_info());
+                break;
+            }
+        }*/
+        //let ip_info = wifi_stack.get_ip_info().unwrap();
+        //let gateway = ip_info.subnet.gateway.octets();
         rprintln!("Start busy loop on main");
 
         let mut rx_buffer = [0u8; 1536];
-            let mut tx_buffer = [0u8; 1536];
+        let mut tx_buffer = [0u8; 1536];
         let mut socket = wifi_stack.get_socket(&mut rx_buffer, &mut tx_buffer);
 
         loop {
-            rprintln!("Making HTTP request");
+            //rprintln!("Making HTTP request");
             socket.work();
 
             socket
-                .open(
-                    IpAddress::Ipv4(Ipv4Address::new(
-                        gateway[0], gateway[1], gateway[2], gateway[3],
-                    )),
-                        8080,
-                )
+                .open(IpAddress::Ipv4(Ipv4Address::new(192, 168, 2, 1)), 8080)
                 .unwrap();
 
             socket.write(b"Hello from Client").unwrap();
