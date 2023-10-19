@@ -23,7 +23,7 @@ mod app {
     use smoltcp::iface::SocketStorage;
 
     const SSID: &str = "espwifi"; //env!("SSID");
-    //const PASSWORD: &str = "88888888"; //env!("PASSWORD");
+                                  //const PASSWORD: &str = "88888888"; //env!("PASSWORD");
     #[shared]
     struct Shared {}
 
@@ -105,7 +105,7 @@ mod app {
         let mut rx_buffer = [0u8; 1536];
         let mut tx_buffer = [0u8; 1536];
         let mut socket = wifi_stack.get_socket(&mut rx_buffer, &mut tx_buffer);
-
+        let mut presses = 0;
         socket.listen(8080).unwrap();
 
         loop {
@@ -116,7 +116,6 @@ mod app {
             }
 
             if socket.is_connected() {
-
                 let mut time_out = false;
                 let wait_end = current_millis() + 20 * 1000;
                 let mut buffer = [0u8; 1024];
@@ -125,8 +124,9 @@ mod app {
                     if let Ok(len) = socket.read(&mut buffer[pos..]) {
                         let to_print =
                             unsafe { core::str::from_utf8_unchecked(&buffer[..(pos + len)]) };
-                            rprintln!("{}", to_print);
-                            break;
+                        presses += 1;
+                        rprintln!("{}, number:{}", to_print, presses);
+                        break;
                     }
 
                     if current_millis() > wait_end {
@@ -147,10 +147,10 @@ mod app {
                 rprintln!("Done");
             }
 
-            let wait_end = current_millis() + 5 * 1000;
-            while current_millis() < wait_end {
-                socket.work();
-            }
+            //let wait_end = current_millis() + 5 * 1000;
+            //while current_millis() < wait_end {
+            //    socket.work();
+            //}
         }
     }
     fn parse_ip(ip: &str) -> [u8; 4] {
