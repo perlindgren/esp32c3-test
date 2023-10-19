@@ -27,8 +27,8 @@ rustup target add riscv32imac-unknown-none-elf
 
 
 ``` shell
-cargo build --example wifi --release
-probe-rs run --chip esp32c3-idf --format idf ./target/riscv32imac-unknown-none-elf/release/examples/wifi_rtic
+cargo build --example $EXAMPLE_NAME --release
+probe-rs run --chip esp32c3-idf --format idf ./target/riscv32imac-unknown-none-elf/release/examples/$EXAMPLE_NAME
 ```
 To run an example.
 
