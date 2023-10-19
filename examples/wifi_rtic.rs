@@ -19,6 +19,7 @@ mod app {
     use hal::{peripherals::Peripherals, prelude::*};
     use hal::{systimer::SystemTimer, Rng};
     use panic_rtt_target as _;
+    //use esp_backtrace as _;
     use rtt_target::{rprint, rprintln, rtt_init_print};
     use smoltcp::iface::SocketStorage;
     use smoltcp::wire::IpAddress;
@@ -26,11 +27,11 @@ mod app {
 
     const SSID: &str = "espwifi"; //env!("SSID");
     const PASSWORD: &str = ""; //env!("PASSWORD");
-    const STATIC_IP: &str = "192.168.2.100";
+    const STATIC_IP: &str = "192.168.2.99";
     const GATEWAY_IP: &str = "192.168.2.1";
     #[shared]
     struct Shared {
-        button_state:bool,
+        button_state: bool,
     }
 
     #[local]
@@ -65,7 +66,7 @@ mod app {
         let mut button = io.pins.gpio9.into_pull_down_input();
         let button_state = false;
         button.listen(Event::FallingEdge);
-        (Shared {button_state}, Local { wifi, init, button })
+        (Shared { button_state }, Local { wifi, init, button })
     }
 
     #[idle(local = [wifi, init], shared = [button_state])]
@@ -90,13 +91,17 @@ mod app {
         rprintln!("is wifi started: {:?}", controller.is_started());
 
         rprintln!("Start Wifi Scan");
-        let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> =
-            controller.scan_n();
-        if let Ok((res, _count)) = res {
-            for ap in res {
-                rprintln!("{:?}", ap);
-                if ap.ssid == "espwifi" {
-                    rprintln!("here");
+        let mut found = false;
+        while !found {
+            let res: Result<(heapless::Vec<AccessPointInfo, 10>, usize), WifiError> =
+                controller.scan_n();
+            if let Ok((res, _count)) = res {
+                for ap in res {
+                    rprintln!("{:?}", ap);
+                    if ap.ssid == SSID {
+                        found = true;
+                        break; //ap detected
+                    }
                 }
             }
         }
@@ -138,43 +143,42 @@ mod app {
                     },
                 ),
             ))
-        .unwrap();
-        /* rprintln!("Wait to get an ip address");
-        loop{
-            wifi_stack.work();
-            if wifi_stack.is_iface_up(){
-                rprintln!("got ip {:?}", wifi_stack.get_ip_info());
-                break;
-            }
-        }*/
-        //let ip_info = wifi_stack.get_ip_info().unwrap();
-        //let gateway = ip_info.subnet.gateway.octets();
+            .unwrap();
         rprintln!("Start busy loop on main");
 
         let mut rx_buffer = [0u8; 1536];
         let mut tx_buffer = [0u8; 1536];
         let mut socket = wifi_stack.get_socket(&mut rx_buffer, &mut tx_buffer);
-
+        let mut button_state = false;
+        let mut presses = 0;
         loop {
-            //rprintln!("Making HTTP request");
-            socket.work();
-            let button_state = cx.shared.button_state.lock(|button_state|{
-                button_state.clone()
+            button_state = cx.shared.button_state.lock(|btn| {
+                unsafe { core::ptr::read_volatile(btn) } //HAS to be a volatile read...
+                                                         //*btn
             });
-            if button_state{
+            if button_state {
+                button_state = false;
+                cx.shared.button_state.lock(|btn| {
+                    *btn = false;
+                });
+                socket.work();
+
                 socket
                     .open(IpAddress::Ipv4(Ipv4Address::new(192, 168, 2, 1)), 8080)
                     .unwrap();
-                rprintln!("button flag flipped");
+                let current_time = current_millis();
                 socket.write(b"Button pressed").unwrap();
+                presses += 1;
+                rprintln!("Button pressed {} times", presses);
                 socket.flush().unwrap();
-                cx.shared.button_state.lock(|button_state|*button_state=false);
+
                 let wait_end = current_millis() + 20 * 1000;
                 loop {
                     let mut buffer = [0u8; 512];
                     if let Ok(len) = socket.read(&mut buffer) {
+                        let rtt = current_millis() - current_time;
                         let to_print = unsafe { core::str::from_utf8_unchecked(&buffer[..len]) };
-                        rprint!("{}", to_print);
+                        rprint!("Response:{}, RTT:{}ms", to_print, rtt);
                     } else {
                         break;
                     }
@@ -185,7 +189,13 @@ mod app {
                     }
                 }
                 rprintln!();
+
                 socket.disconnect();
+
+                let wait_end = current_millis() + 10;
+                while current_millis() < wait_end {
+                    socket.work();
+                }
             }
         }
     }
@@ -193,10 +203,9 @@ mod app {
     #[task(binds=GPIO, priority=1, local=[button], shared=[button_state])]
     fn button(mut cx: button::Context) {
         cx.local.button.clear_interrupt();
-        cx.shared.button_state.lock(|button_state|{
+        cx.shared.button_state.lock(|button_state| {
             *button_state = true;
         });
-        rprintln!("button");
     }
     fn parse_ip(ip: &str) -> [u8; 4] {
         let mut result = [0u8; 4];
