@@ -29,7 +29,9 @@ mod app {
     const STATIC_IP: &str = "192.168.2.100";
     const GATEWAY_IP: &str = "192.168.2.1";
     #[shared]
-    struct Shared {}
+    struct Shared {
+        button_state:bool,
+    }
 
     #[local]
     struct Local {
@@ -61,12 +63,13 @@ mod app {
         let (wifi, ..) = peripherals.RADIO.split();
         let io = IO::new(peripherals.GPIO, peripherals.IO_MUX);
         let mut button = io.pins.gpio9.into_pull_down_input();
+        let button_state = false;
         button.listen(Event::FallingEdge);
-        (Shared {}, Local { wifi, init, button })
+        (Shared {button_state}, Local { wifi, init, button })
     }
 
-    #[idle(local = [wifi, init])]
-    fn idle(cx: idle::Context) -> ! {
+    #[idle(local = [wifi, init], shared = [button_state])]
+    fn idle(mut cx: idle::Context) -> ! {
         let wifi = cx.local.wifi;
         let init = cx.local.init;
         let mut socket_set_entries: [SocketStorage; 3] = Default::default();
@@ -135,7 +138,7 @@ mod app {
                     },
                 ),
             ))
-            .unwrap();
+        .unwrap();
         /* rprintln!("Wait to get an ip address");
         loop{
             wifi_stack.work();
@@ -155,43 +158,44 @@ mod app {
         loop {
             //rprintln!("Making HTTP request");
             socket.work();
+            let button_state = cx.shared.button_state.lock(|button_state|{
+                button_state.clone()
+            });
+            if button_state{
+                socket
+                    .open(IpAddress::Ipv4(Ipv4Address::new(192, 168, 2, 1)), 8080)
+                    .unwrap();
+                rprintln!("button flag flipped");
+                socket.write(b"Button pressed").unwrap();
+                socket.flush().unwrap();
+                cx.shared.button_state.lock(|button_state|*button_state=false);
+                let wait_end = current_millis() + 20 * 1000;
+                loop {
+                    let mut buffer = [0u8; 512];
+                    if let Ok(len) = socket.read(&mut buffer) {
+                        let to_print = unsafe { core::str::from_utf8_unchecked(&buffer[..len]) };
+                        rprint!("{}", to_print);
+                    } else {
+                        break;
+                    }
 
-            socket
-                .open(IpAddress::Ipv4(Ipv4Address::new(192, 168, 2, 1)), 8080)
-                .unwrap();
-
-            socket.write(b"Hello from Client").unwrap();
-            socket.flush().unwrap();
-
-            let wait_end = current_millis() + 20 * 1000;
-            loop {
-                let mut buffer = [0u8; 512];
-                if let Ok(len) = socket.read(&mut buffer) {
-                    let to_print = unsafe { core::str::from_utf8_unchecked(&buffer[..len]) };
-                    rprint!("{}", to_print);
-                } else {
-                    break;
+                    if current_millis() > wait_end {
+                        rprintln!("Timeout");
+                        break;
+                    }
                 }
-
-                if current_millis() > wait_end {
-                    rprintln!("Timeout");
-                    break;
-                }
-            }
-            rprintln!();
-
-            socket.disconnect();
-
-            let wait_end = current_millis() + 5 * 1000;
-            while current_millis() < wait_end {
-                socket.work();
+                rprintln!();
+                socket.disconnect();
             }
         }
     }
 
-    #[task(binds=GPIO, priority=1, local=[button])]
-    fn button(cx: button::Context) {
+    #[task(binds=GPIO, priority=1, local=[button], shared=[button_state])]
+    fn button(mut cx: button::Context) {
         cx.local.button.clear_interrupt();
+        cx.shared.button_state.lock(|button_state|{
+            *button_state = true;
+        });
         rprintln!("button");
     }
     fn parse_ip(ip: &str) -> [u8; 4] {
