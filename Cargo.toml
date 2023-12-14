@@ -8,10 +8,11 @@ edition = "2021"
 [dependencies]
 critical-section   = "1.1.1"
 cfg-if = "1.0.0"
-esp32c3-hal = { git = "https://github.com/esp-rs/esp-hal", features = ["direct-boot", "interrupt-preemption", "direct-vectoring"] }
-rtt-target = { version = "0.3.1", features=["riscv"]}
-rtic = {git = 'https://github.com/rtic-rs/rtic', features = ["riscv-esp32c3-backend"]}
-esp32c3 = {version="0.17.0",features=["critical-section"]}
+esp32c3-hal = { version = "0.14.0", features = ["interrupt-preemption", "direct-vectoring"] }
+panic-rtt-target = { version = "0.1.2" }
+rtt-target = { version = "0.4.0" }
+rtic = {git = 'https://github.com/onsdagens/rtic', features = ["riscv-esp32c3-backend"], branch = "esp32c3-example"}
+esp32c3 = {version="0.20.0",features=["critical-section"]}
 
 [profile.release]
 incremental = false
@@ -20,4 +21,5 @@ debug = true        # symbols are nice and they don't increase the size on Flash
 opt-level = 3
 
 [patch.crates-io]
-rtt-target = { git = 'https://github.com/onsdagens/rtt-target' }
+panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
+rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
