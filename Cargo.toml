@@ -6,18 +6,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cfg-if = "1.0.0"
-esp32c3 = "0.17.0"
-esp32c3-hal = { version = "0.12.0", features = [
-    "rt",
-    "direct-boot",
-    "vectored",
+
+esp32c3-hal = { version = "0.14.0", features = [
+    "interrupt-preemption",
+    "direct-vectoring",
 ] }
+
+cfg-if = "1.0.0"
+esp32c3 = { version = "0.20.0", features = ["critical-section"] }
 critical-section = "1.1.2"
 panic-rtt-target = { version = "0.1.2" }
 rtt-target = { version = "0.4.0" }
-defmt-rtt = "0.4.0"
-defmt = "0.3.5"
+# defmt-rtt = "0.4.0"
+# defmt = "0.3.5"
 
 [profile.release]
 incremental = false
@@ -27,11 +28,11 @@ lto = true          # better optimizations
 opt-level = "s"
 
 [patch.crates-io]
-panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'panic-rtt-target-riscv' }
+panic-rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
+rtt-target = { git = 'https://github.com/perlindgren/rtt-target', branch = 'cell' }
 
 # esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/' }
-esp32c3-hal = { git = 'https://github.com/esp-rs/esp-hal/' }
+# esp32c3-hal = { git = 'https://github.com/esp-rs/esp-hal/' }
 
 # esp-hal-common = { git = 'https://github.com/onsdagens/esp-hal/' }
 # esp32c3-hal = { git = 'https://github.com/onsdagens/esp-hal/' }

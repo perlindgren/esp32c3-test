@@ -1,20 +1,19 @@
-[target.riscv32imac-unknown-none-elf]
-# runner = "espflash --format direct-boot --monitor"
-runner = 'probe-rs run --chip esp32c3'
+[target.riscv32imc-unknown-none-elf]
+runner = 'probe-rs run --chip esp32c3 --format idf'
 rustflags = [
     "-C",
     "link-arg=-Tlinkall.x",
 
-    "-C",
-    "link-arg=--nmagic",
+    # "-C",
+    # "link-arg=--nmagic",
 
     # defmt specific
-    "-C",
-    "link-arg=-Tdefmt.x",
+    # "-C",
+    # "link-arg=-Tdefmt.x",
 ]
 
 [build]
-target = "riscv32imac-unknown-none-elf"
+target = "riscv32imc-unknown-none-elf"
 
 # might be a bug in compiler, with the effect that flag is unused
 [env]
