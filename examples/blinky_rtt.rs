@@ -4,7 +4,7 @@
 //!
 //! Run on target:
 //!
-//! cargo embed --example blinky_rtt
+//! cargo run --example blinky_rtt
 //!
 
 #![no_std]

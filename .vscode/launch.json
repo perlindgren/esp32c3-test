@@ -30,9 +30,40 @@
                     //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
                     //     },
                     // ],
-                    // "svdFile": "./.vscode/X.svd"
                 }
             ]
+            // "svdFile": "./.vscode/X.svd"
+        },
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "probe-rs Defmt Debug",
+            "probe": "303a:1001", //!MODIFY (or remove)
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "cargo build --example",
+            "connectUnderReset": false,
+            "chip": "esp32c3",
+            "flashingConfig": {
+                "flashingEnabled": true,
+                "resetAfterFlashing": true,
+                "haltAfterReset": false,
+            },
+            "coreConfigs": [
+                {
+                    "coreIndex": 0,
+                    "programBinary": "./target/riscv32imac-unknown-none-elf/debug/examples/${fileBasenameNoExtension}",
+                    "rttEnabled": true,
+                    "DEFMT_LOG": "Trace" // Trace, Debug, Info, Warn, Error
+                    // "rttChannelFormats": [
+                    //     {
+                    //         "channelNumber": 0,
+                    //         "dataFormat": "String", // Format RTT data as String data
+                    //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
+                    //     },
+                    // ],
+                }
+            ]
+            // "svdFile": "./.vscode/X.svd"
         },
         {
             "type": "probe-rs-debug",
@@ -68,11 +99,9 @@
                     //         "channelNumber": 1,
                     //         "dataFormat": "String", // Format RTT data as String data
                     //         "showTimestamps": false // Include host-side timestamps for every line of data transferred from the target RTT output
-                    //     },
-                ],
-                // "svdFile": "./.vscode/X.svd",
-            }
-        ]
-    }
-]
+                },
+            ],
+            // "svdFile": "./.vscode/X.svd",
+        },
+    ]
 }

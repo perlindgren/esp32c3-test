@@ -9,6 +9,7 @@
     "baudrate",
     "blinky",
     "clockctrl",
+    "defmt",
     "espflash",
     "imac",
     "intctl",

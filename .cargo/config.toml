@@ -1,6 +1,21 @@
 [target.riscv32imac-unknown-none-elf]
-runner = "espflash --format direct-boot --monitor"
-rustflags = ["-C", "link-arg=-Tlinkall.x"]
+# runner = "espflash --format direct-boot --monitor"
+runner = 'probe-rs run --chip esp32c3'
+rustflags = [
+    "-C",
+    "link-arg=-Tlinkall.x",
+
+    "-C",
+    "link-arg=--nmagic",
+
+    # defmt specific
+    "-C",
+    "link-arg=-Tdefmt.x",
+]
 
 [build]
 target = "riscv32imac-unknown-none-elf"
+
+# might be a bug in compiler, with the effect that flag is unused
+[env]
+DEFMT_LOG = "trace"
