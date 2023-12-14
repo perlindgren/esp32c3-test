@@ -8,13 +8,12 @@ use core::panic::PanicInfo;
 
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR1, FROM_CPU_INTR2, FROM_CPU_INTR0])]
 mod app {
-    use rtt_target::{rprintln, rtt_init_print};
     use esp32c3_hal as _;
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {
         shared_resource: bool,
-
     }
 
     #[local]
@@ -27,7 +26,7 @@ mod app {
         bar::spawn().ok();
         //simulate resource
         let shared_resource = false;
-        (Shared {shared_resource }, Local {})
+        (Shared { shared_resource }, Local {})
     }
 
     #[task(priority = 5, shared = [])]
@@ -38,7 +37,7 @@ mod app {
     #[task(priority = 3, shared = [shared_resource])]
     async fn bar(mut cx: bar::Context) {
         rprintln!("Low priority task entry");
-        cx.shared.shared_resource.lock(|shared_resource|{
+        cx.shared.shared_resource.lock(|shared_resource| {
             rprintln!("Shared resource locked");
             baz::spawn().ok();
             foo::spawn().ok();
@@ -52,15 +51,14 @@ mod app {
     #[task(priority = 4, shared = [shared_resource])]
     async fn baz(mut cx: baz::Context) {
         rprintln!("Middle prio task entry");
-        cx.shared.shared_resource.lock(|shared_resource|{
+        cx.shared.shared_resource.lock(|shared_resource| {
             rprintln!("Shared resource value:{}", shared_resource);
         });
         rprintln!("Middle prio task exit");
     }
-
 }
 
 #[panic_handler]
-fn panic(_:&PanicInfo)->!{
-    loop{}
+fn panic(_: &PanicInfo) -> ! {
+    loop {}
 }

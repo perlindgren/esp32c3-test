@@ -6,8 +6,8 @@ use core::panic::PanicInfo;
 
 #[rtic::app(device = esp32c3, dispatchers=[FROM_CPU_INTR0])]
 mod app {
-    use rtt_target::{rprintln, rtt_init_print};
     use esp32c3_hal as _;
+    use rtt_target::{rprintln, rtt_init_print};
 
     #[shared]
     struct Shared {}
@@ -30,6 +30,6 @@ mod app {
 }
 
 #[panic_handler]
-fn panic(_:&PanicInfo)->!{
-    loop{}
+fn panic(_: &PanicInfo) -> ! {
+    loop {}
 }

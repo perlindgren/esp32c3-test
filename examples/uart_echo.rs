@@ -37,14 +37,10 @@ mod app {
         rprintln!("uart_echo_rtic");
 
         let peripherals = Peripherals::take();
-        let mut system = peripherals.SYSTEM.split();
+        let system = peripherals.SYSTEM.split();
         let clocks = ClockControl::max(system.clock_control).freeze();
 
-        let timer_group0 = TimerGroup::new(
-            peripherals.TIMG0,
-            &clocks,
-            &mut system.peripheral_clock_control,
-        );
+        let timer_group0 = TimerGroup::new(peripherals.TIMG0, &clocks);
         let mut timer0 = timer_group0.timer0;
 
         let config = Config {
@@ -60,13 +56,7 @@ mod app {
             io.pins.gpio1.into_floating_input(),
         );
 
-        let mut uart0 = Uart::new_with_config(
-            peripherals.UART0,
-            config,
-            Some(pins),
-            &clocks,
-            &mut system.peripheral_clock_control,
-        );
+        let mut uart0 = Uart::new_with_config(peripherals.UART0, config, Some(pins), &clocks);
 
         // This is stupid!
         // TODO, can we have interrupts after timeout even if threshold > 1?

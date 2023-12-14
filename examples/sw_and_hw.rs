@@ -50,7 +50,9 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
-            unsafe{esp32c3_hal::riscv::asm::nop();}
+            unsafe {
+                esp32c3_hal::riscv::asm::nop();
+            }
         }
         rprintln!("Leaving high prio task.");
     }
@@ -60,7 +62,9 @@ mod app {
         let mut x = 0;
         while x < 5000000 {
             x += 1; //burn cycles
-            unsafe{esp32c3_hal::riscv::asm::nop();}
+            unsafe {
+                esp32c3_hal::riscv::asm::nop();
+            }
         }
         rprintln!("Leaving low prio task.");
     }
@@ -73,6 +77,6 @@ mod app {
 }
 
 #[panic_handler]
-fn panic(_:&PanicInfo)->!{
-    loop{}
+fn panic(_: &PanicInfo) -> ! {
+    loop {}
 }
