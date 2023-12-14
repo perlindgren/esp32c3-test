@@ -1,9 +1,6 @@
 [target.riscv32imc-unknown-none-elf]
-runner = "espflash --format direct-boot --monitor"
-rustflags = [
-"-C",
-"link-arg=-Tlinkall.x",
-]
+runner = "probe-rs run --chip esp32c3 --format idf"
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
 
 [build]
 target = "riscv32imc-unknown-none-elf"

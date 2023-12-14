@@ -8,20 +8,20 @@ edition = "2021"
 [dependencies]
 critical-section = "1.1.1"
 cfg-if = "1.0.0"
-esp32c3-hal = { version = "0.12.0", features = [
-    "direct-boot",
+esp32c3-hal = { version = "0.14.0", features = [
+    #"direct-boot",
     "interrupt-preemption",
     "direct-vectoring",
 ] }
 rtt-target = { version = "0.4.0" }
 panic-rtt-target = "0.1.2"
-rtic = { git = 'https://github.com/onsdagens/rtic', features = [
+rtic = { git = 'https://github.com/onsdagens/rtic', branch = "esp32c3-example", features = [
     "riscv-esp32c3-backend",
 ] }
 rtic-monotonics = { git = "https://github.com/onsdagens/rtic", branch = "monotonic", features = [
     "esp32c3-systimer",
 ] }
-esp32c3 = { version = "0.17.0", features = ["critical-section"] }
+esp32c3 = { version = "0.20.0", features = ["critical-section"] }
 
 lab4 = { git = "https://vesuvio-git.neteq.ltu.se/pln/rust_decode" }
 
