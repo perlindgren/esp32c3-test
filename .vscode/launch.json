@@ -16,12 +16,9 @@
             "flashingConfig": {
                 "flashingEnabled": true,
                 "resetAfterFlashing": true,
-                "haltAfterReset": false,          
+                "haltAfterReset": false,
             },
             // "runtimeExecutable": "probe-rs",
-            "runtimeArgs": ["format", "idf"],
-            // "runtimeArgs": ["--format", "idf"],
-            // "runtimeArgs": ["--format idf"],
             "coreConfigs": [
                 {
                     "coreIndex": 0,
