@@ -13,32 +13,38 @@ Playground for experimentation with the esp32c3-rust board.
 
 ## Setup
 
-`espflash` and `cargo-espflash` are optional. We use the `imac` target with emulated atomics. 
+`espflash` and `cargo-espflash` are optional. We use the `imac` target with emulated atomics.
 
 ```shell
 rustup target add riscv32imac-unknown-none-elf
 cargo install cargo-espflash espflash
 ```
 
+We use `probe-rs` for the debugging.
+
+```shell
+cargo install probe-rs --features=cli
+```
+
+The `--features=cli` is optional, adding a `gdb` like user interface.
+
 ---
 
 ## Configuration
 
-For now we want to generate binaries executable from flash. This is achieved through the `direct-boot` build feature enabled by default (in the `Cargo.toml`). 
+For now we want to generate binaries executable from flash. This is achieved through the `direct-boot` build feature enabled by default (in the `Cargo.toml`).
 
 The `.cargo/config.toml` sets the runner:
 
-``` toml
-runner = "espflash --format direct-boot --monitor"
+```toml
+runner = 'probe-rs run --chip esp32c3'
 ```
 
 This allows you to use `cargo run` to flash and run your program, e.g.:
 
-``` shell
+```shell
 cargo run --example blinky_rtt
 ```
-
-(Notice, we use `rtt` tracing which is not supported by `espflash` so you will only see the blinking.)
 
 ---
 
@@ -55,11 +61,10 @@ cargo run --example blinky_rtt
 
 ## Debugging in vscode
 
-The `.vscode` folder provides `launch.json` and `tasks.json` configuration files for using [probe-rs-debugger](https://probe.rs/docs/tools/vscode/) in a seamless fashion. 
+The `.vscode` folder provides `launch.json` and `tasks.json` configuration files for using [probe-rs-debugger](https://probe.rs/docs/tools/vscode/) in a seamless fashion.
 
 ---
 
 ## Notes
 
-The `Cargo.toml` and `.cargo/config` are now distilled to a minimum for experimentation. We rely on emulated atomics for `imac` target, allowing us to use the current `rtt_target`. 
-
+The `Cargo.toml` and `.cargo/config` are now distilled to a minimum for experimentation. We rely on emulated atomics for `imac` target, allowing us to use the current `rtt_target`.

@@ -1,5 +1,5 @@
 [target.riscv32imc-unknown-none-elf]
-runner = 'probe-rs run --chip esp32c3 --format idf'
+runner = 'probe-rs run --chip esp32c3'
 rustflags = [
     "-C",
     "link-arg=-Tlinkall.x",
